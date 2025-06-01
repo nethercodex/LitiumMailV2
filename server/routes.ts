@@ -1816,7 +1816,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const latestRelease = await githubResponse.json();
       const latestVersion = latestRelease.tag_name.replace('v', '');
       
-      const updateAvailable = latestVersion !== currentVersion;
+      // Функция для сравнения семантических версий
+      const compareVersions = (current: string, latest: string): boolean => {
+        const currentParts = current.split('.').map(Number);
+        const latestParts = latest.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(currentParts.length, latestParts.length); i++) {
+          const currentPart = currentParts[i] || 0;
+          const latestPart = latestParts[i] || 0;
+          
+          if (latestPart > currentPart) return true;
+          if (latestPart < currentPart) return false;
+        }
+        return false; // Версии равны
+      };
+      
+      const updateAvailable = compareVersions(currentVersion, latestVersion);
       
       console.log("Проверка обновлений:", {
         current: currentVersion,
