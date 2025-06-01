@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle } from "lucide-react";
+import SystemInfo from "./system-info";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -126,6 +127,7 @@ export default function Admin() {
     { id: 'database', label: 'База данных', icon: Database },
     { id: 'monitoring', label: 'Мониторинг', icon: Activity },
     { id: 'security', label: 'Безопасность', icon: Shield },
+    { id: 'system-info', label: 'Информация о панели', icon: FileText },
   ];
 
   const renderContent = () => {
@@ -367,6 +369,9 @@ export default function Admin() {
       
       case 'mail-server':
         return <MailServerSettings />;
+      
+      case 'system-info':
+        return <SystemInfo />;
       
       default:
         return (
