@@ -690,10 +690,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // Автоматически запускаем почтовый сервер при старте приложения
-  mailServer.start(2525).catch(error => {
-    console.error("Failed to start mail server on startup:", error);
-  });
+  // SMTP сервер теперь запускается только через админ-панель
+  // чтобы не мешать веб-интерфейсу
   
   return httpServer;
 }
