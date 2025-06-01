@@ -723,12 +723,147 @@ function MailServerSettings() {
     );
   }
 
+  // Загрузка статуса собственного почтового сервера
+  const { data: serverStatus, isLoading: statusLoading } = useQuery({
+    queryKey: ['/api/admin/mail-server/status'],
+    refetchInterval: 5000, // Обновляем каждые 5 секунд
+  });
+
+  // Запуск собственного почтового сервера
+  const startServerMutation = useMutation({
+    mutationFn: async (port: number = 2525) => {
+      return apiRequest('/api/admin/mail-server/start', {
+        method: 'POST',
+        body: JSON.stringify({ port }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Сервер запущен",
+        description: "Собственный почтовый сервер LITIUM успешно запущен",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/mail-server/status'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка запуска",
+        description: error.message || "Не удалось запустить почтовый сервер",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Остановка собственного почтового сервера
+  const stopServerMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('/api/admin/mail-server/stop', {
+        method: 'POST',
+        body: JSON.stringify({}),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Сервер остановлен",
+        description: "Собственный почтовый сервер LITIUM остановлен",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/mail-server/status'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка остановки",
+        description: error.message || "Не удалось остановить почтовый сервер",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-white mb-2">Настройки почтового сервера</h2>
-        <p className="text-gray-400">Настройка SMTP и IMAP серверов для системы LITIUM.SPACE</p>
+        <h2 className="text-3xl font-bold text-white mb-2">Собственный почтовый сервер LITIUM.SPACE</h2>
+        <p className="text-gray-400">Управление независимым почтовым сервером без зависимости от внешних сервисов</p>
       </div>
+
+      {/* Статус собственного почтового сервера */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Server className="w-5 h-5" />
+            Статус собственного SMTP сервера LITIUM
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-gray-300">Состояние сервера</Label>
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${serverStatus?.isRunning ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span className={`font-medium ${serverStatus?.isRunning ? 'text-green-400' : 'text-red-400'}`}>
+                  {statusLoading ? 'Загрузка...' : serverStatus?.isRunning ? 'Запущен' : 'Остановлен'}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Порт SMTP</Label>
+              <span className="text-white font-mono">
+                {serverStatus?.port || 2525}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Домен</Label>
+              <span className="text-white font-mono">
+                mail.litium.space
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button
+              onClick={() => startServerMutation.mutate(2525)}
+              disabled={serverStatus?.isRunning || startServerMutation.isPending}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {startServerMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Запуск...
+                </div>
+              ) : (
+                'Запустить сервер'
+              )}
+            </Button>
+            
+            <Button
+              onClick={() => stopServerMutation.mutate()}
+              disabled={!serverStatus?.isRunning || stopServerMutation.isPending}
+              variant="outline"
+              className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+            >
+              {stopServerMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                  Остановка...
+                </div>
+              ) : (
+                'Остановить сервер'
+              )}
+            </Button>
+          </div>
+          
+          <div className="bg-gray-900/50 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-gray-300 mb-2">Информация о сервере:</h4>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Адрес сервера: mail.litium.space:2525</li>
+              <li>• Поддержка SSL/TLS: Да</li>
+              <li>• Аутентификация: Обязательная</li>
+              <li>• Максимальный размер письма: 10 МБ</li>
+              <li>• Домены: @litium.space</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SMTP Settings */}
