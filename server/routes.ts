@@ -149,15 +149,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/admin/users/:userId", requireAuth, async (req: any, res) => {
     try {
+      console.log("PATCH request received, user:", req.user);
       const userId = req.user.id;
       if (userId !== 'support') {
+        console.log("Access denied for user:", userId);
         return res.status(403).json({ message: "Access denied" });
       }
 
       const { userId: targetUserId } = req.params;
       const userData = req.body;
+      console.log("Updating user:", targetUserId, "with data:", userData);
 
       const updatedUser = await storage.updateUser(targetUserId, userData);
+      console.log("User updated successfully:", updatedUser);
       res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user:", error);
