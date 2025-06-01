@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Plus, Search, Inbox, Send, Trash2, LogOut, User, Shield, Settings, ChevronDown } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,18 @@ export default function Home() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [selectedEmailId, setSelectedEmailId] = useState<number | null>(null);
+
+  // Generate initials for avatar fallback
+  const getInitials = (firstName?: string, lastName?: string, username?: string) => {
+    if (firstName && lastName) {
+      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    } else if (firstName) {
+      return firstName[0].toUpperCase();
+    } else if (username) {
+      return username[0].toUpperCase();
+    }
+    return 'U';
+  };
   const [currentView, setCurrentView] = useState<'inbox' | 'sent'>('inbox');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -118,9 +131,12 @@ export default function Home() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2 hover:bg-surface/50 px-3 py-2 rounded-lg transition-colors">
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-[#b9ff6a]/20 rounded-full flex items-center justify-center border border-[#b9ff6a]/30">
-                      <User className="w-4 h-4 text-[#b9ff6a]" />
-                    </div>
+                    <Avatar className="w-8 h-8 border border-[#b9ff6a]/30">
+                      <AvatarImage src={user?.profileImageUrl || ''} alt={user?.username} />
+                      <AvatarFallback className="text-xs font-bold bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] text-black">
+                        {getInitials(user?.firstName, user?.lastName, user?.username)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm font-medium text-white">
                       {user?.firstName || user?.username}
                     </span>
