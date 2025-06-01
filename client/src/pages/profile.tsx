@@ -264,39 +264,65 @@ export default function Profile() {
                   Подписка
                 </CardTitle>
                 <CardDescription className="text-gray-300 text-base">
-                  Управление тарифным планом
+                  Информация о тарифном плане
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="text-center p-6 rounded-xl bg-gradient-to-br from-[#b9ff6a]/10 via-[#b9ff6a]/5 to-transparent border border-[#b9ff6a]/30">
-                  <div className="text-xl font-bold text-[#b9ff6a] mb-2">
+                  <div className="text-2xl font-bold text-[#b9ff6a] mb-2">
                     {getPlanDisplayName(profileData?.plan || 'basic')}
                   </div>
                   <div className="text-sm text-gray-300 font-medium">Текущий план</div>
                 </div>
                 
-                {/* Plan Selection */}
-                <div className="space-y-3">
-                  <h4 className="text-white font-semibold text-base">Изменить план:</h4>
-                  {['basic', 'pro', 'enterprise'].map((plan) => (
-                    <Button
-                      key={plan}
-                      variant={profileData?.plan === plan ? "default" : "outline"}
-                      size="sm"
-                      className={`w-full justify-between font-medium transition-all duration-200 ${
-                        profileData?.plan === plan 
-                          ? 'bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#96d147] shadow-lg' 
-                          : 'border-gray-600 bg-gradient-to-r from-black/40 to-gray-900/40 text-white hover:bg-gradient-to-r hover:from-gray-800/60 hover:to-gray-700/60 hover:border-[#b9ff6a]/50'
-                      }`}
-                      onClick={() => changePlanMutation.mutate(plan)}
-                      disabled={changePlanMutation.isPending || profileData?.plan === plan}
-                    >
-                      <span>{getPlanDisplayName(plan)}</span>
-                      {profileData?.plan === plan && (
-                        <CheckCircle className="h-4 w-4" />
+                {/* Plan Details */}
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                    <div className="text-[#b9ff6a] font-medium text-sm mb-2">Статус подписки:</div>
+                    <div className="flex items-center gap-2">
+                      {profileData?.isActive ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="text-green-500 font-semibold">Активна</span>
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-4 w-4 text-red-500" />
+                          <span className="text-red-500 font-semibold">Неактивна</span>
+                        </>
                       )}
-                    </Button>
-                  ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                    <div className="text-[#b9ff6a] font-medium text-sm mb-2">Возможности плана:</div>
+                    <div className="space-y-2 text-sm text-gray-300">
+                      {profileData?.plan === 'basic' && (
+                        <>
+                          <div>• До 100 писем в месяц</div>
+                          <div>• 1 GB хранилища</div>
+                          <div>• Базовая поддержка</div>
+                        </>
+                      )}
+                      {profileData?.plan === 'pro' && (
+                        <>
+                          <div>• До 1000 писем в месяц</div>
+                          <div>• 10 GB хранилища</div>
+                          <div>• Приоритетная поддержка</div>
+                          <div>• Расширенная аналитика</div>
+                        </>
+                      )}
+                      {profileData?.plan === 'enterprise' && (
+                        <>
+                          <div>• Неограниченные письма</div>
+                          <div>• 100 GB хранилища</div>
+                          <div>• VIP поддержка 24/7</div>
+                          <div>• Полная аналитика</div>
+                          <div>• API доступ</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <Separator className="bg-gradient-to-r from-transparent via-[#b9ff6a]/30 to-transparent" />
