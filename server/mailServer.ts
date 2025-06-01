@@ -7,9 +7,9 @@ export class LitiumMailServer {
   private smtpServer: SMTPServer;
   private isRunning = false;
   private config = {
-    port: 25,
+    port: 2525,
     secure: false,
-    authRequired: true,
+    authRequired: false, // Разрешить анонимные соединения для получения внешних писем
     maxClients: 100,
     maxConnections: 100
   };
@@ -46,9 +46,15 @@ export class LitiumMailServer {
     });
   }
 
-  // Аутентификация пользователей
+  // Аутентификация пользователей (опциональна для внешних писем)
   private async handleAuth(auth: any, session: any, callback: any) {
     try {
+      // Для внешних писем разрешаем подключение без аутентификации
+      if (!auth.username || !auth.password) {
+        callback(null, { user: 'external' });
+        return;
+      }
+      
       // Извлекаем username из email адреса
       const username = auth.username.split('@')[0];
       
@@ -133,7 +139,7 @@ export class LitiumMailServer {
       
       console.log(`Incoming email: ${fromEmail} -> ${toEmail}: ${subject}`);
       
-      // Для внутренних писем между @litium.space пользователями
+      // Обработка писем для @litium.space пользователей
       if (toEmail.includes('@litium.space')) {
         const recipientUsername = toEmail.split('@')[0];
         const { storage } = await import('./storage');
@@ -144,22 +150,43 @@ export class LitiumMailServer {
         if (recipient) {
           // Определяем отправителя
           let fromUserId = 'external';
+          
           if (fromEmail.includes('@litium.space')) {
+            // Внутренний пользователь
             const senderUsername = fromEmail.split('@')[0];
             const sender = await storage.getUserByUsername(senderUsername);
             if (sender) {
               fromUserId = sender.id;
             }
+          } else {
+            // Внешний отправитель - создаем временного пользователя
+            try {
+              let externalUser = await storage.getUserByEmail(fromEmail);
+              if (!externalUser) {
+                const externalUsername = fromEmail.split('@')[0] + '_external';
+                externalUser = await storage.createUser({
+                  username: externalUsername,
+                  email: fromEmail,
+                  password: 'external_user',
+                  firstName: fromEmail.split('@')[0],
+                  lastName: null
+                });
+              }
+              fromUserId = externalUser.id;
+            } catch (error) {
+              console.error('Error creating external user:', error);
+              fromUserId = 'external';
+            }
           }
           
-          // Сохраняем письмо в базу данных для получателя
+          // Сохраняем письмо в базу данных
           await storage.sendEmail(fromUserId, {
             toEmail: toEmail,
             subject: subject,
             body: body
           });
           
-          console.log(`Internal email delivered to ${recipientUsername}`);
+          console.log(`Email delivered: ${fromEmail} -> ${toEmail}`);
         } else {
           console.log(`Recipient ${recipientUsername} not found`);
         }
