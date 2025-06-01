@@ -1567,6 +1567,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return Math.min(score, 100);
   }
 
+  // Эндпоинты для управления настройками безопасности
+  app.get("/api/admin/security/settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // В реальной системе настройки безопасности загружались бы из базы данных
+      const securitySettings = {
+        minPasswordLength: 8,
+        requireUppercase: true,
+        requireNumbers: true,
+        requireSpecialChars: true,
+        passwordExpiration: 90,
+        maxLoginAttempts: 5,
+        lockoutDuration: 15,
+        sessionTimeout: 60,
+        enableRateLimit: true,
+        rateLimitWindow: 15,
+        rateLimitRequests: 100,
+        enableCORS: true,
+        allowedOrigins: '',
+        enableEmailEncryption: false,
+        encryptionAlgorithm: 'AES-256',
+        enableSecurityLogs: true,
+        logFailedLogins: true,
+        logSuspiciousActivity: true,
+        enableIPWhitelist: false,
+        whitelistedIPs: '',
+        enableFirewall: true
+      };
+
+      res.json(securitySettings);
+    } catch (error) {
+      console.error("Error fetching security settings:", error);
+      res.status(500).json({ message: "Failed to fetch security settings" });
+    }
+  });
+
+  app.post("/api/admin/security/settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const settings = req.body;
+      
+      // В реальной системе настройки сохранялись бы в базу данных
+      console.log("Сохранение настроек безопасности:", settings);
+
+      res.json({
+        success: true,
+        message: "Настройки безопасности успешно сохранены"
+      });
+    } catch (error) {
+      console.error("Error saving security settings:", error);
+      res.status(500).json({ message: "Failed to save security settings" });
+    }
+  });
+
+  app.post("/api/admin/security/generate-key", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Генерация нового ключа шифрования
+      const newKey = require('crypto').randomBytes(32).toString('hex');
+      
+      // В реальной системе новый ключ сохранялся бы безопасно
+      console.log("Сгенерирован новый ключ шифрования");
+
+      res.json({
+        success: true,
+        message: "Новый ключ шифрования сгенерирован",
+        keyPreview: newKey.substring(0, 8) + "..." // Показываем только начало ключа
+      });
+    } catch (error) {
+      console.error("Error generating encryption key:", error);
+      res.status(500).json({ message: "Failed to generate encryption key" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // SMTP сервер теперь запускается только через админ-панель

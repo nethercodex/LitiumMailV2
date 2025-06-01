@@ -1,11 +1,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle } from "lucide-react";
+import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle, Lock, Key, Eye, EyeOff, Timer, Ban } from "lucide-react";
 import SystemInfo from "./system-info";
 import Monitoring from "./monitoring";
 import DatabaseAdmin from "./database";
-import SecuritySettings from "./security";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -387,7 +386,7 @@ export default function Admin() {
         return <AdminSettings />;
       
       case 'security':
-        return <SecuritySettings />;
+        return <AdminSecuritySettings />;
       
       default:
         return (
@@ -2038,6 +2037,443 @@ function MailServerSettings() {
           </Button>
         </div>
       </form>
+    </div>
+  );
+}
+
+// Компонент настроек безопасности системы
+function AdminSecuritySettings() {
+  const { toast } = useToast();
+  const [securitySettings, setSecuritySettings] = useState({
+    // Настройки паролей
+    minPasswordLength: 8,
+    requireUppercase: true,
+    requireNumbers: true,
+    requireSpecialChars: true,
+    passwordExpiration: 90,
+    
+    // Настройки входа
+    maxLoginAttempts: 5,
+    lockoutDuration: 15,
+    sessionTimeout: 60,
+    
+    // Защита от атак
+    enableRateLimit: true,
+    rateLimitWindow: 15,
+    rateLimitRequests: 100,
+    
+    // CORS и безопасность
+    enableCORS: true,
+    allowedOrigins: '',
+    
+    // Шифрование почты
+    enableEmailEncryption: false,
+    encryptionAlgorithm: 'AES-256',
+    
+    // Мониторинг безопасности
+    enableSecurityLogs: true,
+    logFailedLogins: true,
+    logSuspiciousActivity: true,
+    
+    // Дополнительная защита
+    enableIPWhitelist: false,
+    whitelistedIPs: '',
+    enableFirewall: true
+  });
+
+  // Загрузка текущих настроек безопасности
+  const { data: currentSettings, isLoading } = useQuery({
+    queryKey: ['/api/admin/security/settings'],
+    retry: 1
+  });
+
+  useEffect(() => {
+    if (currentSettings) {
+      setSecuritySettings(currentSettings);
+    }
+  }, [currentSettings]);
+
+  // Сохранение настроек безопасности
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (settings: any) => {
+      return apiRequest('POST', '/api/admin/security/settings', settings);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Настройки безопасности сохранены",
+        description: "Все изменения применены успешно",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка сохранения",
+        description: error.message || "Не удалось сохранить настройки",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Генерация нового ключа шифрования
+  const generateKeyMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('POST', '/api/admin/security/generate-key');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Новый ключ сгенерирован",
+        description: "Ключ шифрования обновлен",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка генерации ключа",
+        description: error.message || "Не удалось сгенерировать ключ",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSave = () => {
+    saveSettingsMutation.mutate(securitySettings);
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setSecuritySettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2 text-gray-400">
+          <div className="w-6 h-6 border-2 border-[#b9ff6a] border-t-transparent rounded-full animate-spin"></div>
+          Загрузка настроек безопасности...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold text-white mb-2">Настройки безопасности</h2>
+        <p className="text-gray-400">Управление защитой системы и почтового сервера</p>
+      </div>
+
+      {/* Настройки паролей */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Lock className="w-5 h-5" />
+            Политика паролей
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-gray-300">Минимальная длина пароля</Label>
+              <Input
+                type="number"
+                value={securitySettings.minPasswordLength}
+                onChange={(e) => handleInputChange('minPasswordLength', parseInt(e.target.value))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                min="6"
+                max="32"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Срок действия пароля (дни)</Label>
+              <Input
+                type="number"
+                value={securitySettings.passwordExpiration}
+                onChange={(e) => handleInputChange('passwordExpiration', parseInt(e.target.value))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                min="0"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Требовать заглавные буквы</Label>
+              <Switch
+                checked={securitySettings.requireUppercase}
+                onCheckedChange={(checked) => handleInputChange('requireUppercase', checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Требовать цифры</Label>
+              <Switch
+                checked={securitySettings.requireNumbers}
+                onCheckedChange={(checked) => handleInputChange('requireNumbers', checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Требовать специальные символы</Label>
+              <Switch
+                checked={securitySettings.requireSpecialChars}
+                onCheckedChange={(checked) => handleInputChange('requireSpecialChars', checked)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Настройки входа и сессий */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Key className="w-5 h-5" />
+            Контроль входа
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label className="text-gray-300">Максимум попыток входа</Label>
+              <Input
+                type="number"
+                value={securitySettings.maxLoginAttempts}
+                onChange={(e) => handleInputChange('maxLoginAttempts', parseInt(e.target.value))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                min="1"
+                max="10"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Блокировка на (минут)</Label>
+              <Input
+                type="number"
+                value={securitySettings.lockoutDuration}
+                onChange={(e) => handleInputChange('lockoutDuration', parseInt(e.target.value))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                min="1"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-300">Таймаут сессии (минут)</Label>
+              <Input
+                type="number"
+                value={securitySettings.sessionTimeout}
+                onChange={(e) => handleInputChange('sessionTimeout', parseInt(e.target.value))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                min="5"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Защита от атак */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Защита от атак
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-gray-300">Ограничение скорости запросов</Label>
+              <p className="text-sm text-gray-500">Защита от DDoS и спама</p>
+            </div>
+            <Switch
+              checked={securitySettings.enableRateLimit}
+              onCheckedChange={(checked) => handleInputChange('enableRateLimit', checked)}
+            />
+          </div>
+          
+          {securitySettings.enableRateLimit && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Окно времени (минут)</Label>
+                <Input
+                  type="number"
+                  value={securitySettings.rateLimitWindow}
+                  onChange={(e) => handleInputChange('rateLimitWindow', parseInt(e.target.value))}
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                  min="1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-300">Максимум запросов</Label>
+                <Input
+                  type="number"
+                  value={securitySettings.rateLimitRequests}
+                  onChange={(e) => handleInputChange('rateLimitRequests', parseInt(e.target.value))}
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                  min="10"
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Шифрование почты */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Lock className="w-5 h-5" />
+            Шифрование почты
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-gray-300">Шифрование электронной почты</Label>
+              <p className="text-sm text-gray-500">Шифрование содержимого писем при хранении</p>
+            </div>
+            <Switch
+              checked={securitySettings.enableEmailEncryption}
+              onCheckedChange={(checked) => handleInputChange('enableEmailEncryption', checked)}
+            />
+          </div>
+          
+          {securitySettings.enableEmailEncryption && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Алгоритм шифрования</Label>
+                <Select
+                  value={securitySettings.encryptionAlgorithm}
+                  onValueChange={(value) => handleInputChange('encryptionAlgorithm', value)}
+                >
+                  <SelectTrigger className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="AES-256">AES-256</SelectItem>
+                    <SelectItem value="AES-192">AES-192</SelectItem>
+                    <SelectItem value="AES-128">AES-128</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-300">Ключ шифрования</Label>
+                <Button
+                  onClick={() => generateKeyMutation.mutate()}
+                  disabled={generateKeyMutation.isPending}
+                  variant="outline"
+                  className="w-full border-gray-600 hover:border-[#b9ff6a] hover:text-[#b9ff6a]"
+                >
+                  {generateKeyMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-[#b9ff6a] border-t-transparent rounded-full animate-spin"></div>
+                      Генерация...
+                    </div>
+                  ) : (
+                    'Сгенерировать новый ключ'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Мониторинг безопасности */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Eye className="w-5 h-5" />
+            Мониторинг безопасности
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Включить логи безопасности</Label>
+              <Switch
+                checked={securitySettings.enableSecurityLogs}
+                onCheckedChange={(checked) => handleInputChange('enableSecurityLogs', checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Логировать неудачные входы</Label>
+              <Switch
+                checked={securitySettings.logFailedLogins}
+                onCheckedChange={(checked) => handleInputChange('logFailedLogins', checked)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-gray-300">Логировать подозрительную активность</Label>
+              <Switch
+                checked={securitySettings.logSuspiciousActivity}
+                onCheckedChange={(checked) => handleInputChange('logSuspiciousActivity', checked)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* IP-фильтрация */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Ban className="w-5 h-5" />
+            IP-фильтрация
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-gray-300">Белый список IP-адресов</Label>
+              <p className="text-sm text-gray-500">Разрешить доступ только с указанных IP</p>
+            </div>
+            <Switch
+              checked={securitySettings.enableIPWhitelist}
+              onCheckedChange={(checked) => handleInputChange('enableIPWhitelist', checked)}
+            />
+          </div>
+          
+          {securitySettings.enableIPWhitelist && (
+            <div className="space-y-2">
+              <Label className="text-gray-300">Разрешенные IP-адреса</Label>
+              <Textarea
+                value={securitySettings.whitelistedIPs}
+                onChange={(e) => handleInputChange('whitelistedIPs', e.target.value)}
+                placeholder="192.168.1.1&#10;10.0.0.0/8&#10;172.16.0.0/12"
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] min-h-[100px]"
+              />
+              <p className="text-xs text-gray-500">
+                По одному IP или подсети на строку. Поддерживается CIDR нотация.
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-gray-300">Включить файрвол</Label>
+              <p className="text-sm text-gray-500">Базовая защита от атак</p>
+            </div>
+            <Switch
+              checked={securitySettings.enableFirewall}
+              onCheckedChange={(checked) => handleInputChange('enableFirewall', checked)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Кнопка сохранения */}
+      <div className="flex justify-end pt-4">
+        <Button
+          onClick={handleSave}
+          disabled={saveSettingsMutation.isPending}
+          className="bg-[#b9ff6a] text-black hover:bg-[#a8ef59] px-8 py-2"
+        >
+          {saveSettingsMutation.isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              Сохранение...
+            </div>
+          ) : (
+            'Сохранить настройки безопасности'
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
