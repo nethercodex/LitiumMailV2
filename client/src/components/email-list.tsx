@@ -79,10 +79,10 @@ export default function EmailList({ emails, selectedEmailId, onEmailSelect, isLo
                       {email.sender.firstName || email.sender.email}
                     </span>
                     <span className="text-xs text-text-muted flex-shrink-0 ml-2">
-                      {formatDistanceToNow(new Date(email.createdAt), { 
+                      {email.sentAt ? formatDistanceToNow(new Date(email.sentAt), { 
                         addSuffix: true, 
                         locale: ru 
-                      })}
+                      }) : 'Недавно'}
                     </span>
                   </div>
                   
