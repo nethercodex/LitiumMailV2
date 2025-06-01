@@ -19,6 +19,12 @@ export default function Admin() {
     enabled: !!user && user.id === 'support',
   });
 
+  // Fetch users list
+  const { data: users, isLoading: usersLoading } = useQuery({
+    queryKey: ["/api/admin/users"],
+    enabled: !!user && user.id === 'support' && activeSection === 'users',
+  });
+
   useEffect(() => {
     if (!isLoading && !user) {
       toast({
@@ -198,9 +204,81 @@ export default function Admin() {
               <h2 className="text-3xl font-bold text-white mb-2">Управление пользователями</h2>
               <p className="text-gray-400">Просмотр и управление учетными записями</p>
             </div>
+            
             <Card className="bg-black/40 border-gray-800">
-              <CardContent className="p-6">
-                <p className="text-gray-400">Функции управления пользователями будут добавлены в следующих обновлениях.</p>
+              <CardHeader>
+                <CardTitle className="text-white">Список пользователей</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {usersLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-gray-400">Загрузка пользователей...</div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {users && users.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-700">
+                              <th className="text-left py-3 px-4 text-gray-300">ID</th>
+                              <th className="text-left py-3 px-4 text-gray-300">Имя пользователя</th>
+                              <th className="text-left py-3 px-4 text-gray-300">Email</th>
+                              <th className="text-left py-3 px-4 text-gray-300">План</th>
+                              <th className="text-left py-3 px-4 text-gray-300">Статус</th>
+                              <th className="text-left py-3 px-4 text-gray-300">Дата регистрации</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {users.map((user: any) => (
+                              <tr key={user.id} className="border-b border-gray-800 hover:bg-gray-800/30">
+                                <td className="py-3 px-4 text-white font-mono text-xs">{user.id}</td>
+                                <td className="py-3 px-4 text-white">
+                                  <div className="flex items-center gap-2">
+                                    <UserCog className="h-4 w-4 text-[#b9ff6a]" />
+                                    {user.username}
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4 text-gray-300">{user.email || 'Не указан'}</td>
+                                <td className="py-3 px-4">
+                                  <Badge 
+                                    variant={user.plan === 'premium' ? 'default' : 'secondary'}
+                                    className={
+                                      user.plan === 'premium' 
+                                        ? 'bg-[#b9ff6a] text-black hover:bg-[#b9ff6a]/80' 
+                                        : 'bg-gray-700 text-gray-300'
+                                    }
+                                  >
+                                    {user.plan === 'premium' ? 'Premium' : 'Free'}
+                                  </Badge>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Badge 
+                                    variant={user.isActive ? 'default' : 'destructive'}
+                                    className={
+                                      user.isActive 
+                                        ? 'bg-green-600 text-white hover:bg-green-700'
+                                        : 'bg-red-600 text-white hover:bg-red-700'
+                                    }
+                                  >
+                                    {user.isActive ? 'Активен' : 'Заблокирован'}
+                                  </Badge>
+                                </td>
+                                <td className="py-3 px-4 text-gray-400">
+                                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Не указано'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-400">
+                        Пользователи не найдены
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

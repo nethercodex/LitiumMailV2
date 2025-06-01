@@ -132,6 +132,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/users", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   // Email routes
   app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {

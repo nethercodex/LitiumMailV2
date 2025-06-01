@@ -33,7 +33,8 @@ export interface IStorage {
   deleteEmail(emailId: number, userId: string): Promise<void>;
   searchEmails(userId: string, query: string): Promise<EmailWithDetails[]>;
   
-  // Admin statistics
+  // Admin methods
+  getAllUsers(): Promise<User[]>;
   getUsersCount(): Promise<number>;
   getEmailsCount(): Promise<number>;
   getRecentUsersCount(): Promise<number>;
@@ -278,7 +279,21 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  // Admin statistics methods
+  // Admin methods
+  async getAllUsers(): Promise<User[]> {
+    return await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      plan: users.plan,
+      isActive: users.isActive,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    }).from(users).orderBy(desc(users.createdAt));
+  }
+
   async getUsersCount(): Promise<number> {
     const result = await db.select({ count: sql<number>`count(*)` }).from(users);
     return result[0].count;
