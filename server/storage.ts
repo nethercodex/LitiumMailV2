@@ -55,6 +55,7 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .insert(users)
       .values({
+        id: userData.username, // Используем username как id
         username: userData.username,
         email: userData.email,
         password: userData.password, // В реальном приложении пароль должен быть захеширован
