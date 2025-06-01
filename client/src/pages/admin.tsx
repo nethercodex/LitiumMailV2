@@ -295,14 +295,16 @@ export default function Admin() {
                                 <td className="py-3 px-4 text-gray-300">{user.email || 'Не указан'}</td>
                                 <td className="py-3 px-4">
                                   <Badge 
-                                    variant={user.plan === 'premium' ? 'default' : 'secondary'}
+                                    variant={user.plan === 'basic' ? 'secondary' : 'default'}
                                     className={
-                                      user.plan === 'premium' 
-                                        ? 'bg-[#b9ff6a] text-black hover:bg-[#b9ff6a]/80' 
-                                        : 'bg-gray-700 text-gray-300'
+                                      user.plan === 'basic' 
+                                        ? 'bg-gray-700 text-gray-300' 
+                                        : user.plan === 'pro'
+                                        ? 'bg-[#b9ff6a] text-black hover:bg-[#b9ff6a]/80'
+                                        : 'bg-purple-600 text-white hover:bg-purple-700'
                                     }
                                   >
-                                    {user.plan === 'premium' ? 'Premium' : 'Free'}
+                                    {getPlanDisplayName(user.plan)}
                                   </Badge>
                                 </td>
                                 <td className="py-3 px-4">
