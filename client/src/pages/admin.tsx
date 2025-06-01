@@ -710,6 +710,12 @@ function AdminSettings() {
         title: "Настройки сохранены",
         description: "Настройки системы успешно обновлены",
       });
+      // Обновляем кэш настроек
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
+      // Перезагружаем страницу для обновления навбара
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: (error: any) => {
       toast({

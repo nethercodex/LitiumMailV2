@@ -34,6 +34,12 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<'inbox' | 'sent'>('inbox');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Загружаем общие настройки для отображения названия сайта
+  const { data: generalSettings } = useQuery({
+    queryKey: ["/api/admin/settings/general"],
+    retry: false,
+  });
+
   // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !user) {
@@ -104,7 +110,9 @@ export default function Home() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Mail className="text-dark h-4 w-4" />
             </div>
-            <span className="text-xl font-bold text-primary">LITIUM.SPACE</span>
+            <span className="text-xl font-bold text-primary">
+              {generalSettings?.siteName || 'LITIUM.SPACE'}
+            </span>
           </div>
           
           <div className="flex items-center space-x-4 max-w-md flex-1 mx-8">
