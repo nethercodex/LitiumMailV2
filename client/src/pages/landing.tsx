@@ -260,43 +260,59 @@ export default function Landing() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300 group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 btn-hover-scale group-hover:bg-primary/20 group-hover:shadow-lg group-hover:shadow-primary/20">
                   <Layers className="text-primary h-8 w-8" />
                 </div>
                 <h4 className="font-semibold mb-2">Отправка файлов</h4>
                 <p className="text-text-muted text-sm">До 25 ГБ вложений в одном письме</p>
+                <div className="mt-3 flex items-center justify-center">
+                  <div className="w-8 h-1 bg-primary/30 rounded-full"></div>
+                </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300 group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                  <Calendar className="text-primary h-8 w-8" />
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 btn-hover-scale group-hover:bg-blue-500/20 group-hover:shadow-lg group-hover:shadow-blue-500/20">
+                  <Calendar className="text-blue-400 h-8 w-8" />
                 </div>
                 <h4 className="font-semibold mb-2">Календарь</h4>
                 <p className="text-text-muted text-sm">Интегрированный календарь и планировщик</p>
+                <div className="mt-3 flex items-center justify-center">
+                  <div className="w-8 h-1 bg-blue-400/30 rounded-full"></div>
+                </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300 group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                  <Users className="text-primary h-8 w-8" />
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 btn-hover-scale group-hover:bg-purple-500/20 group-hover:shadow-lg group-hover:shadow-purple-500/20">
+                  <Users className="text-purple-400 h-8 w-8" />
                 </div>
                 <h4 className="font-semibold mb-2">Командная работа</h4>
                 <p className="text-text-muted text-sm">Совместное управление почтой в команде</p>
+                <div className="mt-3 flex items-center justify-center">
+                  <div className="w-8 h-1 bg-purple-400/30 rounded-full"></div>
+                </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300 group">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
-                  <Bot className="text-primary h-8 w-8" />
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-6 text-center relative z-10">
+                <div className="w-16 h-16 bg-orange-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 btn-hover-scale group-hover:bg-orange-500/20 group-hover:shadow-lg group-hover:shadow-orange-500/20">
+                  <Bot className="text-orange-400 h-8 w-8" />
                 </div>
                 <h4 className="font-semibold mb-2">ИИ-помощник</h4>
                 <p className="text-text-muted text-sm">Умные ответы и автоматизация</p>
+                <div className="mt-3 flex items-center justify-center">
+                  <div className="w-8 h-1 bg-orange-400/30 rounded-full"></div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -322,8 +338,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="space-y-8">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 btn-hover-scale group-hover:bg-green-500/20 group-hover:shadow-lg group-hover:shadow-green-500/20">
                     <Key className="text-green-500 h-6 w-6" />
                   </div>
                   <div>
@@ -332,8 +348,8 @@ export default function Landing() {
                   </div>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0 btn-hover-scale group-hover:bg-blue-500/20 group-hover:shadow-lg group-hover:shadow-blue-500/20">
                     <Server className="text-blue-400 h-6 w-6" />
                   </div>
                   <div>
@@ -342,8 +358,8 @@ export default function Landing() {
                   </div>
                 </div>
                 
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="flex items-start space-x-4 group">
+                  <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center flex-shrink-0 btn-hover-scale group-hover:bg-yellow-500/20 group-hover:shadow-lg group-hover:shadow-yellow-500/20">
                     <EyeOff className="text-yellow-500 h-6 w-6" />
                   </div>
                   <div>
@@ -413,22 +429,48 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-surface/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="pricing" className="py-20 bg-surface/30 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-primary/10 rounded-full border border-primary/20 mb-6">
+              <MessageSquareLock className="text-primary mr-2 h-4 w-4" />
+              <span className="text-sm text-primary font-medium">Тарифные планы</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               Выберите подходящий тариф
             </h2>
             <p className="text-xl text-text-muted max-w-3xl mx-auto">
               Гибкие тарифные планы для любых потребностей
             </p>
+            
+            <div className="flex items-center justify-center mt-8 space-x-2">
+              <div className="flex items-center space-x-2 bg-surface rounded-full p-1 border border-surface-lighter">
+                <button className="px-4 py-2 rounded-full bg-primary text-dark text-sm font-medium">
+                  Месячная оплата
+                </button>
+                <button className="px-4 py-2 rounded-full text-text-muted text-sm font-medium hover:text-white">
+                  Годовая оплата
+                </button>
+              </div>
+              <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                -20%
+              </div>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Basic Plan */}
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300">
-              <CardContent className="p-8">
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gray-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Mail className="text-gray-400 h-8 w-8" />
+                  </div>
                   <h3 className="text-xl font-bold mb-2">Базовый</h3>
                   <div className="text-3xl font-bold mb-2">
                     Бесплатно
@@ -436,28 +478,36 @@ export default function Landing() {
                   <p className="text-text-muted">Для личного использования</p>
                 </div>
                 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-4 mb-8">
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-green-500 h-3 w-3" />
+                    </div>
                     <span className="text-sm">1 ГБ хранилища</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-green-500 h-3 w-3" />
+                    </div>
                     <span className="text-sm">1 почтовый адрес</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-green-500 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Базовая защита от спама</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-green-500 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Мобильное приложение</span>
                   </li>
                 </ul>
                 
                 <Button 
                   variant="outline" 
-                  className="w-full border-surface-lighter hover:bg-surface"
+                  className="w-full border-surface-lighter hover:bg-surface btn-hover-scale glow-subtle"
                   onClick={handleSignup}
                 >
                   Начать бесплатно
@@ -466,48 +516,62 @@ export default function Landing() {
             </Card>
             
             {/* Pro Plan */}
-            <Card className="bg-surface border-2 border-primary relative transform scale-105">
+            <Card className="bg-surface border-2 border-primary relative card-hover glow-primary group overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-primary text-dark px-4 py-1 rounded-full text-sm font-medium">
-                  Популярный
+                <span className="bg-primary text-dark px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                  🔥 Популярный
                 </span>
               </div>
               
-              <CardContent className="p-8">
+              <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center mx-auto mb-4 pulse-glow">
+                    <Zap className="text-primary h-8 w-8" />
+                  </div>
                   <h3 className="text-xl font-bold mb-2">Профессиональный</h3>
                   <div className="text-3xl font-bold mb-2">
-                    499₽
+                    <span className="text-primary">499₽</span>
                     <span className="text-base font-normal text-text-muted">/мес</span>
                   </div>
                   <p className="text-text-muted">Для бизнеса и команд</p>
                 </div>
                 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-4 mb-8">
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="text-primary h-3 w-3" />
+                    </div>
                     <span className="text-sm">25 ГБ хранилища</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="text-primary h-3 w-3" />
+                    </div>
                     <span className="text-sm">5 почтовых адресов</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="text-primary h-3 w-3" />
+                    </div>
                     <span className="text-sm">Расширенная защита</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="text-primary h-3 w-3" />
+                    </div>
                     <span className="text-sm">Календарь и задачи</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center">
+                      <Check className="text-primary h-3 w-3" />
+                    </div>
                     <span className="text-sm">Приоритетная поддержка</span>
                   </li>
                 </ul>
                 
                 <Button 
-                  className="w-full bg-primary text-dark font-semibold hover:bg-primary/80"
+                  className="w-full bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary"
                   onClick={handleSignup}
                 >
                   Выбрать план
@@ -516,43 +580,57 @@ export default function Landing() {
             </Card>
             
             {/* Enterprise Plan */}
-            <Card className="bg-surface border-surface-lighter hover:border-primary/20 transition-all duration-300">
-              <CardContent className="p-8">
+            <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-violet-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Server className="text-violet-400 h-8 w-8" />
+                  </div>
                   <h3 className="text-xl font-bold mb-2">Корпоративный</h3>
                   <div className="text-3xl font-bold mb-2">
-                    1499₽
+                    <span className="text-violet-400">1499₽</span>
                     <span className="text-base font-normal text-text-muted">/мес</span>
                   </div>
                   <p className="text-text-muted">Для больших команд</p>
                 </div>
                 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-4 mb-8">
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-violet-400 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Безлимитное хранилище</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-violet-400 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Безлимитные адреса</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-violet-400 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Корпоративная защита</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-violet-400 h-3 w-3" />
+                    </div>
                     <span className="text-sm">Административная панель</span>
                   </li>
                   <li className="flex items-center space-x-3">
-                    <Check className="text-green-500 h-4 w-4" />
+                    <div className="w-5 h-5 bg-violet-500/20 rounded-full flex items-center justify-center">
+                      <Check className="text-violet-400 h-3 w-3" />
+                    </div>
                     <span className="text-sm">24/7 поддержка</span>
                   </li>
                 </ul>
                 
                 <Button 
                   variant="outline" 
-                  className="w-full border-surface-lighter hover:bg-surface"
+                  className="w-full border-surface-lighter hover:bg-surface btn-hover-scale glow-subtle"
                 >
                   Связаться с нами
                 </Button>
