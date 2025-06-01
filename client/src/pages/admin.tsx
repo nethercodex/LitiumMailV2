@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3 } from "lucide-react";
+import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -836,12 +836,207 @@ function MailServerSettings() {
           <div className="bg-gray-900/50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-gray-300 mb-2">Информация о сервере:</h4>
             <ul className="text-sm text-gray-400 space-y-1">
-              <li>• Адрес сервера: mail.litium.space:2525</li>
+              <li>• Адрес сервера: {window.location.hostname}:2525</li>
               <li>• Поддержка SSL/TLS: Да</li>
               <li>• Аутентификация: Обязательная</li>
               <li>• Максимальный размер письма: 10 МБ</li>
               <li>• Домены: @litium.space</li>
             </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Инструкция по подключению домена */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Globe className="w-5 h-5" />
+            Инструкция: Подключение собственного домена
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="bg-gradient-to-r from-[#b9ff6a]/10 to-transparent p-4 rounded-lg border border-[#b9ff6a]/20">
+            <h4 className="text-[#b9ff6a] font-medium mb-3">Настройка DNS записей для домена litium.space</h4>
+            <div className="space-y-4">
+              <div>
+                <h5 className="text-white font-medium mb-2">1. MX запись (обязательно)</h5>
+                <div className="bg-black/40 p-3 rounded border font-mono text-sm">
+                  <div className="text-gray-300 mb-1">Домен: litium.space</div>
+                  <div className="text-gray-300 mb-1">Тип: MX</div>
+                  <div className="text-gray-300 mb-1">Имя: @</div>
+                  <div className="text-gray-300 mb-1">Значение: {window.location.hostname}</div>
+                  <div className="text-gray-300">Приоритет: 10</div>
+                </div>
+              </div>
+              
+              <div>
+                <h5 className="text-white font-medium mb-2">2. A запись (для SMTP сервера)</h5>
+                <div className="bg-black/40 p-3 rounded border font-mono text-sm">
+                  <div className="text-gray-300 mb-1">Домен: litium.space</div>
+                  <div className="text-gray-300 mb-1">Тип: A</div>
+                  <div className="text-gray-300 mb-1">Имя: mail</div>
+                  <div className="text-gray-300">Значение: IP адрес {window.location.hostname}</div>
+                </div>
+              </div>
+              
+              <div>
+                <h5 className="text-white font-medium mb-2">3. SPF запись (для защиты от спама)</h5>
+                <div className="bg-black/40 p-3 rounded border font-mono text-sm">
+                  <div className="text-gray-300 mb-1">Домен: litium.space</div>
+                  <div className="text-gray-300 mb-1">Тип: TXT</div>
+                  <div className="text-gray-300 mb-1">Имя: @</div>
+                  <div className="text-gray-300">Значение: "v=spf1 a:{window.location.hostname} ~all"</div>
+                </div>
+              </div>
+              
+              <div>
+                <h5 className="text-white font-medium mb-2">4. DMARC запись (рекомендуется)</h5>
+                <div className="bg-black/40 p-3 rounded border font-mono text-sm">
+                  <div className="text-gray-300 mb-1">Домен: litium.space</div>
+                  <div className="text-gray-300 mb-1">Тип: TXT</div>
+                  <div className="text-gray-300 mb-1">Имя: _dmarc</div>
+                  <div className="text-gray-300">Значение: "v=DMARC1; p=quarantine; rua=mailto:dmarc@litium.space"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <h4 className="text-white font-medium">Популярные DNS провайдеры:</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <div>• Cloudflare - Панель управления → DNS</div>
+                <div>• Namecheap - Advanced DNS</div>
+                <div>• GoDaddy - DNS Management</div>
+                <div>• Reg.ru - Управление DNS</div>
+                <div>• 2domains - DNS записи</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h4 className="text-white font-medium">Время применения:</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <div>• MX записи: 1-24 часа</div>
+                <div>• A записи: 5-60 минут</div>
+                <div>• TXT записи: 5-60 минут</div>
+                <div>• Полная синхронизация: до 48 часов</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h5 className="text-yellow-400 font-medium mb-1">Важные замечания:</h5>
+                <ul className="text-sm text-yellow-200/80 space-y-1">
+                  <li>• Убедитесь, что TTL для DNS записей не превышает 3600 секунд</li>
+                  <li>• Удалите старые MX записи перед добавлением новых</li>
+                  <li>• Проверьте работу через онлайн-инструменты DNS lookup</li>
+                  <li>• Сохраните резервные копии старых DNS настроек</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h5 className="text-green-400 font-medium mb-1">Проверка настройки:</h5>
+                <div className="text-sm text-green-200/80 space-y-1">
+                  <div>1. Команда: <code className="bg-black/40 px-2 py-1 rounded">nslookup -type=mx litium.space</code></div>
+                  <div>2. Онлайн-инструменты: MXToolbox.com, DNSChecker.org</div>
+                  <div>3. Тестовое письмо на адрес @litium.space</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Практическая инструкция подключения */}
+      <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+        <CardHeader>
+          <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Пошаговая инструкция подключения
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+              <h4 className="text-blue-400 font-medium mb-3 flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">1</div>
+                Войдите в панель управления DNS
+              </h4>
+              <div className="text-sm text-gray-300 space-y-2">
+                <div>• Перейдите к провайдеру домена litium.space</div>
+                <div>• Найдите раздел "DNS Management" или "Управление DNS"</div>
+                <div>• Подготовьте данные: IP адрес {window.location.hostname}</div>
+              </div>
+            </div>
+
+            <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-lg">
+              <h4 className="text-purple-400 font-medium mb-3 flex items-center gap-2">
+                <div className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm">2</div>
+                Настройте MX запись
+              </h4>
+              <div className="text-sm text-gray-300 space-y-2">
+                <div>• Удалите все существующие MX записи</div>
+                <div>• Создайте новую MX запись:</div>
+                <div className="bg-black/40 p-3 rounded border-l-4 border-purple-500 ml-4">
+                  <div>Имя: @ (корень домена)</div>
+                  <div>Значение: {window.location.hostname}</div>
+                  <div>Приоритет: 10</div>
+                  <div>TTL: 3600 (1 час)</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-orange-500/10 border border-orange-500/30 p-4 rounded-lg">
+              <h4 className="text-orange-400 font-medium mb-3 flex items-center gap-2">
+                <div className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm">3</div>
+                Добавьте SPF запись
+              </h4>
+              <div className="text-sm text-gray-300 space-y-2">
+                <div>• Создайте TXT запись для защиты от спама:</div>
+                <div className="bg-black/40 p-3 rounded border-l-4 border-orange-500 ml-4">
+                  <div>Имя: @ (корень домена)</div>
+                  <div>Значение: v=spf1 a:{window.location.hostname} ~all</div>
+                  <div>TTL: 3600</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-lg">
+              <h4 className="text-green-400 font-medium mb-3 flex items-center gap-2">
+                <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm">4</div>
+                Проверьте и активируйте
+              </h4>
+              <div className="text-sm text-gray-300 space-y-2">
+                <div>• Сохраните все изменения в DNS панели</div>
+                <div>• Подождите 15-60 минут для распространения</div>
+                <div>• Проверьте через команду: <code className="bg-black/40 px-2 py-1 rounded">dig mx litium.space</code></div>
+                <div>• Отправьте тестовое письмо на admin@litium.space</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 p-4 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h5 className="text-red-400 font-medium mb-2">Частые ошибки при настройке:</h5>
+                <ul className="text-sm text-red-200/80 space-y-1">
+                  <li>• Не удаление старых MX записей</li>
+                  <li>• Неправильное указание IP адреса сервера</li>
+                  <li>• Слишком большое значение TTL (больше 3600)</li>
+                  <li>• Отсутствие точки в конце FQDN записей</li>
+                  <li>• Неправильный синтаксис SPF записи</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
