@@ -91,6 +91,53 @@ export class DatabaseStorage implements IStorage {
         isActive: true,
       })
       .returning();
+
+    // Отправляем приветственное письмо через собственный SMTP сервер
+    try {
+      const { mailServer } = await import('./mailServer');
+      const welcomeSubject = "Добро пожаловать в LITIUM.SPACE!";
+      const welcomeBody = `
+Добро пожаловать в LITIUM.SPACE, ${userData.firstName}!
+
+Ваш аккаунт успешно создан:
+• Email адрес: ${userData.username}@litium.space
+• Имя: ${userData.firstName} ${userData.lastName}
+
+LITIUM.SPACE - это независимый почтовый сервис с собственным SMTP сервером.
+Теперь вы можете отправлять и получать письма с вашего нового адреса.
+
+Возможности вашего аккаунта:
+✓ Неограниченная отправка писем
+✓ Защищенная связь через собственный сервер
+✓ Полная независимость от внешних провайдеров
+✓ Интеграция с популярными почтовыми клиентами
+
+Настройки для почтовых клиентов:
+SMTP сервер: ${process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost'}
+Порт: 2525
+Шифрование: TLS
+Имя пользователя: ${userData.username}@litium.space
+
+Спасибо за выбор LITIUM.SPACE!
+
+--
+Команда LITIUM.SPACE
+support@litium.space
+      `;
+
+      await mailServer.sendEmail(
+        "support@litium.space",
+        userData.email,
+        welcomeSubject,
+        welcomeBody
+      );
+      
+      console.log(`Welcome email sent to: ${userData.email}`);
+    } catch (emailError) {
+      console.error("Error sending welcome email:", emailError);
+      // Не прерываем регистрацию из-за ошибки отправки письма
+    }
+
     return user;
   }
 
@@ -114,6 +161,13 @@ export class DatabaseStorage implements IStorage {
 
   // Email operations
   async sendEmail(fromUserId: string, emailData: InsertEmail): Promise<Email> {
+    // Получаем информацию об отправителе
+    const sender = await this.getUser(fromUserId);
+    if (!sender) {
+      throw new Error("Sender not found");
+    }
+
+    // Создаем запись в базе данных
     const [email] = await db
       .insert(emails)
       .values({
@@ -125,7 +179,26 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
 
-    // Найти получателя по email адресу
+    // Отправляем через собственный SMTP сервер
+    try {
+      const { mailServer } = await import('./mailServer');
+      const fromAddress = `${sender.username}@litium.space`;
+      
+      // Отправляем письмо через SMTP сервер
+      await mailServer.sendEmail(
+        fromAddress,
+        emailData.toEmail,
+        emailData.subject,
+        emailData.body
+      );
+      
+      console.log(`Email sent via SMTP: ${fromAddress} -> ${emailData.toEmail}`);
+    } catch (smtpError) {
+      console.error("SMTP sending error:", smtpError);
+      // Продолжаем выполнение, письмо сохранено в базе
+    }
+
+    // Найти получателя по email адресу (только для внутренних пользователей)
     const recipient = await this.getUserByEmail(emailData.toEmail);
     if (recipient) {
       await db.insert(emailRecipients).values({
