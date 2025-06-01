@@ -6,6 +6,7 @@ import connectPg from "connect-pg-simple";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import express from "express";
 import { storage } from "./storage";
 import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
 import { db } from "./db";
@@ -15,6 +16,37 @@ import { eq } from "drizzle-orm";
 // Настройка постоянных сессий с базой данных
 const sessionTtl = 30 * 24 * 60 * 60 * 1000; // 30 дней в миллисекундах
 const pgStore = connectPg(session);
+
+// Настройка multer для загрузки файлов
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(process.cwd(), 'uploads', 'avatars');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const userId = (req as any).user?.id;
+    const ext = path.extname(file.originalname);
+    cb(null, `${userId}-${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: avatarStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'));
+    }
+  }
+});
 
 const sessionStore = new pgStore({
   conString: process.env.DATABASE_URL,
@@ -120,6 +152,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ message: "Выход выполнен успешно" });
     });
   });
+
+  // API роут для загрузки аватара
+  app.post("/api/users/avatar", requireAuth, upload.single('avatar'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Файл не загружен" });
+      }
+
+      const userId = req.user.id;
+      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+
+      // Обновляем profileImageUrl в базе данных
+      await db
+        .update(users)
+        .set({ profileImageUrl: avatarUrl })
+        .where(eq(users.id, userId));
+
+      res.json({ 
+        message: "Аватар успешно загружен",
+        avatarUrl 
+      });
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      res.status(500).json({ message: "Ошибка при загрузке аватара" });
+    }
+  });
+
+  // Статические файлы для аватаров
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Admin routes
   app.get("/api/admin/stats", requireAuth, async (req: any, res) => {
