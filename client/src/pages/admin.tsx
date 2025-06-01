@@ -2078,7 +2078,18 @@ function AdminSecuritySettings() {
     // Дополнительная защита
     enableIPWhitelist: false,
     whitelistedIPs: '',
-    enableFirewall: true
+    enableFirewall: true,
+    
+    // Патчи безопасности
+    enableSQLInjectionProtection: true,
+    enableXSSProtection: true,
+    enableCSRFProtection: true,
+    enableHTTPSOnly: true,
+    enableSecurityHeaders: true,
+    enableBruteForceProtection: true,
+    enableSessionHijackingProtection: true,
+    enableDataValidation: true,
+    enableAuditLogs: true
   });
 
   // Загрузка текущих настроек безопасности
@@ -2453,6 +2464,119 @@ function AdminSecuritySettings() {
               checked={securitySettings.enableFirewall}
               onCheckedChange={(checked) => handleInputChange('enableFirewall', checked)}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Патчи безопасности */}
+      <Card className="bg-gray-800/50 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Shield className="w-5 h-5 text-[#b9ff6a]" />
+            Патчи безопасности
+          </CardTitle>
+          <p className="text-gray-400">Дополнительные меры защиты системы</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Защита от SQL-инъекций</Label>
+                <p className="text-sm text-gray-500">Автоматическая фильтрация SQL-запросов</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableSQLInjectionProtection}
+                onCheckedChange={(checked) => handleInputChange('enableSQLInjectionProtection', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Защита от XSS</Label>
+                <p className="text-sm text-gray-500">Фильтрация вредоносных скриптов</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableXSSProtection}
+                onCheckedChange={(checked) => handleInputChange('enableXSSProtection', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Защита от CSRF</Label>
+                <p className="text-sm text-gray-500">Токены защиты от подделки запросов</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableCSRFProtection}
+                onCheckedChange={(checked) => handleInputChange('enableCSRFProtection', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Принудительный HTTPS</Label>
+                <p className="text-sm text-gray-500">Перенаправление на защищенное соединение</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableHTTPSOnly}
+                onCheckedChange={(checked) => handleInputChange('enableHTTPSOnly', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Заголовки безопасности</Label>
+                <p className="text-sm text-gray-500">HSTS, CSP, X-Frame-Options</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableSecurityHeaders}
+                onCheckedChange={(checked) => handleInputChange('enableSecurityHeaders', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Защита от брутфорса</Label>
+                <p className="text-sm text-gray-500">Интеллектуальная блокировка атак</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableBruteForceProtection}
+                onCheckedChange={(checked) => handleInputChange('enableBruteForceProtection', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Защита от угона сессий</Label>
+                <p className="text-sm text-gray-500">Контроль целостности сессий</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableSessionHijackingProtection}
+                onCheckedChange={(checked) => handleInputChange('enableSessionHijackingProtection', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Валидация данных</Label>
+                <p className="text-sm text-gray-500">Строгая проверка входящих данных</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableDataValidation}
+                onCheckedChange={(checked) => handleInputChange('enableDataValidation', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-gray-900/30">
+              <div>
+                <Label className="text-gray-300">Журнал аудита</Label>
+                <p className="text-sm text-gray-500">Подробное логирование действий</p>
+              </div>
+              <Switch
+                checked={securitySettings.enableAuditLogs}
+                onCheckedChange={(checked) => handleInputChange('enableAuditLogs', checked)}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
