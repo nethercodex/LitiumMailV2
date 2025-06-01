@@ -42,13 +42,14 @@ export const users = pgTable("users", {
 
 // User sessions table for security tracking
 export const userSessions = pgTable("user_sessions", {
-  id: serial("id").primaryKey(),
+  id: varchar("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id),
   sessionId: varchar("session_id").notNull(),
+  deviceInfo: varchar("device_info"),
+  location: varchar("location"),
   ipAddress: varchar("ip_address"),
-  userAgent: text("user_agent"),
+  userAgent: varchar("user_agent"),
   browser: varchar("browser"),
-  os: varchar("os"),
   country: varchar("country"),
   city: varchar("city"),
   isActive: boolean("is_active").default(true),
