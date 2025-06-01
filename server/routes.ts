@@ -246,7 +246,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Current password is incorrect" });
       }
 
-      // Update password (simplified for this demo)
+      // Update password in database
+      await storage.updateUserPassword(userId, newPassword);
       res.json({ message: "Password changed successfully" });
     } catch (error) {
       console.error("Error changing password:", error);
