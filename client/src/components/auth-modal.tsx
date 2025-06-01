@@ -6,13 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Star, Users, Crown, Mail, Lock, User, Building2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { registerSchema, loginSchema, type RegisterData, type LoginData } from "@shared/schema";
-import { Zap, Mail, Server, Check, User, Lock, Crown } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,14 +21,16 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Формы
   const registerForm = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
       firstName: "",
       lastName: "",
@@ -43,13 +46,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     },
   });
 
+  // Мутации
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
       const response = await fetch("/api/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       
@@ -61,8 +63,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     },
     onSuccess: () => {
       toast({
-        title: "Аккаунт создан",
-        description: "Добро пожаловать в LITIUM.SPACE!",
+        title: "Добро пожаловать!",
+        description: "Аккаунт успешно создан",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       onClose();
@@ -81,9 +83,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     mutationFn: async (data: LoginData) => {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       
@@ -95,8 +95,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     },
     onSuccess: () => {
       toast({
-        title: "Вход выполнен",
-        description: "Добро пожаловать обратно!",
+        title: "Добро пожаловать!",
+        description: "Вход выполнен успешно",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       onClose();
@@ -122,71 +122,73 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const plans = [
     {
       id: "basic",
-      name: "Базовый",
+      name: "Basic",
       price: "Бесплатно",
-      icon: Mail,
-      features: ["1 GB хранилище", "100 писем в день", "Базовая поддержка"],
-      color: "gray",
+      description: "Для личного использования",
+      features: ["1 GB хранилища", "50 писем в день", "Базовая поддержка"],
+      icon: <Mail className="w-6 h-6" />,
+      popular: false,
     },
     {
       id: "pro",
-      name: "Профессиональный",
-      price: "499₽/мес",
-      icon: Zap,
-      features: ["25 GB хранилище", "Неограниченные письма", "Приоритетная поддержка", "Пользовательские домены"],
-      color: "primary",
+      name: "Pro",
+      price: "₽499/мес",
+      description: "Для профессионалов",
+      features: ["10 GB хранилища", "Безлимитные письма", "Приоритетная поддержка", "Расширенная безопасность"],
+      icon: <Users className="w-6 h-6" />,
       popular: true,
     },
     {
       id: "enterprise",
-      name: "Корпоративный",
-      price: "1499₽/мес",
-      icon: Server,
-      features: ["100 GB хранилище", "Неограниченные письма", "Административная панель", "24/7 поддержка"],
-      color: "violet",
+      name: "Enterprise",
+      price: "₽1999/мес",
+      description: "Для команд и бизнеса",
+      features: ["100 GB хранилища", "Безлимитные письма", "24/7 поддержка", "API доступ", "Аналитика"],
+      icon: <Crown className="w-6 h-6" />,
+      popular: false,
     },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background border-surface-lighter">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-green-400 bg-clip-text text-transparent">
-            LITIUM.SPACE
+          <DialogTitle className="text-2xl font-bold text-center text-white">
+            Добро пожаловать в LITIUM.SPACE
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={authMode} onValueChange={(value) => setAuthMode(value as "login" | "register")} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-surface">
-            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-dark">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800 mb-6">
+            <TabsTrigger value="login" className="data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black">
               Вход
             </TabsTrigger>
-            <TabsTrigger value="register" className="data-[state=active]:bg-primary data-[state=active]:text-dark">
+            <TabsTrigger value="register" className="data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black">
               Регистрация
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="login" className="space-y-6">
-            <Card className="bg-surface border-surface-lighter">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-primary" />
-                  <span>Вход в аккаунт</span>
-                </CardTitle>
-                <CardDescription>
-                  Введите данные для входа в ваш аккаунт LITIUM.SPACE
+          {/* Форма входа */}
+          <TabsContent value="login">
+            <Card className="bg-gray-800 border-gray-700">
+              <CardHeader className="text-center">
+                <CardTitle className="text-white">Вход в аккаунт</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Введите данные для входа в систему
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Имя пользователя</Label>
+                    <Label htmlFor="username" className="text-white flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      Имя пользователя
+                    </Label>
                     <Input
                       id="username"
-                      type="text"
                       placeholder="username"
                       {...loginForm.register("username")}
-                      className="bg-background border-surface-lighter"
+                      className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
                     />
                     {loginForm.formState.errors.username && (
                       <p className="text-sm text-red-400">{loginForm.formState.errors.username.message}</p>
@@ -194,25 +196,27 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Пароль</Label>
+                    <Label htmlFor="password" className="text-white flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Пароль
+                    </Label>
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Введите пароль"
+                      placeholder="••••••••"
                       {...loginForm.register("password")}
-                      className="bg-background border-surface-lighter"
+                      className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
                     />
                     {loginForm.formState.errors.password && (
                       <p className="text-sm text-red-400">{loginForm.formState.errors.password.message}</p>
                     )}
                   </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-primary text-dark hover:bg-primary/80 font-semibold"
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#b9ff6a] hover:bg-[#a8e85c] text-black font-semibold"
                     disabled={loginMutation.isPending}
                   >
-                    <Lock className="mr-2 h-4 w-4" />
                     {loginMutation.isPending ? "Вход..." : "Войти"}
                   </Button>
                 </form>
@@ -220,149 +224,161 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="register" className="space-y-6">
-            <Card className="bg-surface border-surface-lighter">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Crown className="h-5 w-5 text-primary" />
-                  <span>Создание аккаунта</span>
-                </CardTitle>
-                <CardDescription>
-                  Выберите тариф и создайте свой аккаунт в LITIUM.SPACE
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                  {/* Plan Selection */}
-                  <div className="space-y-4">
-                    <Label className="text-base font-semibold">Выберите тариф</Label>
-                    <RadioGroup
-                      value={registerForm.watch("plan")}
-                      onValueChange={(value) => registerForm.setValue("plan", value as "basic" | "pro" | "enterprise")}
-                      className="grid grid-cols-1 md:grid-cols-3 gap-4"
-                    >
-                      {plans.map((plan) => {
-                        const Icon = plan.icon;
-                        return (
-                          <div key={plan.id} className="relative">
-                            {plan.popular && (
-                              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
-                                <span className="bg-primary text-dark px-3 py-1 rounded-full text-xs font-bold">
-                                  🔥 Популярный
-                                </span>
-                              </div>
-                            )}
-                            <Label htmlFor={plan.id} className="cursor-pointer">
-                              <RadioGroupItem value={plan.id} id={plan.id} className="sr-only" />
-                              <Card className={`transition-all hover:scale-105 ${
-                                registerForm.watch("plan") === plan.id 
-                                  ? "border-primary bg-primary/5" 
-                                  : "border-surface-lighter hover:border-primary/50"
-                              } ${plan.popular ? "mt-4" : ""}`}>
-                                <CardContent className="p-4 text-center">
-                                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${
-                                    plan.color === "primary" ? "bg-primary/20" :
-                                    plan.color === "violet" ? "bg-violet-500/20" : "bg-gray-500/20"
-                                  }`}>
-                                    <Icon className={`h-6 w-6 ${
-                                      plan.color === "primary" ? "text-primary" :
-                                      plan.color === "violet" ? "text-violet-400" : "text-gray-400"
-                                    }`} />
-                                  </div>
-                                  <h3 className="font-bold mb-1">{plan.name}</h3>
-                                  <p className={`text-lg font-bold mb-3 ${
-                                    plan.color === "primary" ? "text-primary" :
-                                    plan.color === "violet" ? "text-violet-400" : "text-gray-400"
-                                  }`}>{plan.price}</p>
-                                  <ul className="space-y-1">
-                                    {plan.features.map((feature, index) => (
-                                      <li key={index} className="flex items-center text-xs">
-                                        <Check className="h-3 w-3 text-green-400 mr-1 flex-shrink-0" />
-                                        <span>{feature}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </CardContent>
-                              </Card>
-                            </Label>
-                          </div>
-                        );
-                      })}
-                    </RadioGroup>
-                  </div>
-
-                  {/* User Information */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">Имя</Label>
-                      <Input
-                        id="firstName"
-                        placeholder="Введите имя"
-                        {...registerForm.register("firstName")}
-                        className="bg-background border-surface-lighter"
-                      />
-                      {registerForm.formState.errors.firstName && (
-                        <p className="text-sm text-red-400">{registerForm.formState.errors.firstName.message}</p>
-                      )}
+          {/* Форма регистрации */}
+          <TabsContent value="register">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Форма регистрации */}
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Создать аккаунт</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Заполните форму для регистрации
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-white">Имя</Label>
+                        <Input
+                          id="firstName"
+                          placeholder="Иван"
+                          {...registerForm.register("firstName")}
+                          className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                        />
+                        {registerForm.formState.errors.firstName && (
+                          <p className="text-sm text-red-400">{registerForm.formState.errors.firstName.message}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-white">Фамилия</Label>
+                        <Input
+                          id="lastName"
+                          placeholder="Иванов"
+                          {...registerForm.register("lastName")}
+                          className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                        />
+                        {registerForm.formState.errors.lastName && (
+                          <p className="text-sm text-red-400">{registerForm.formState.errors.lastName.message}</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Фамилия</Label>
-                      <Input
-                        id="lastName"
-                        placeholder="Введите фамилию"
-                        {...registerForm.register("lastName")}
-                        className="bg-background border-surface-lighter"
-                      />
-                      {registerForm.formState.errors.lastName && (
-                        <p className="text-sm text-red-400">{registerForm.formState.errors.lastName.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Имя пользователя</Label>
-                    <div className="flex">
+                      <Label htmlFor="username" className="text-white flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Имя пользователя
+                      </Label>
                       <Input
                         id="username"
                         placeholder="username"
                         {...registerForm.register("username")}
-                        className="bg-background border-surface-lighter rounded-r-none"
+                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
                       />
-                      <div className="bg-surface border border-l-0 border-surface-lighter px-3 py-2 rounded-r-md text-text-muted text-sm flex items-center">
-                        @litium.space
-                      </div>
+                      <p className="text-xs text-gray-400">Ваш email будет: username@litium.space</p>
+                      {registerForm.formState.errors.username && (
+                        <p className="text-sm text-red-400">{registerForm.formState.errors.username.message}</p>
+                      )}
                     </div>
-                    {registerForm.formState.errors.username && (
-                      <p className="text-sm text-red-400">{registerForm.formState.errors.username.message}</p>
-                    )}
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Пароль</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Создайте пароль"
-                      {...registerForm.register("password")}
-                      className="bg-background border-surface-lighter"
-                    />
-                    {registerForm.formState.errors.password && (
-                      <p className="text-sm text-red-400">{registerForm.formState.errors.password.message}</p>
-                    )}
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-white flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Email для связи
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="ivan@example.com"
+                        {...registerForm.register("email")}
+                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                      />
+                      {registerForm.formState.errors.email && (
+                        <p className="text-sm text-red-400">{registerForm.formState.errors.email.message}</p>
+                      )}
+                    </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-primary text-dark hover:bg-primary/80 font-semibold"
-                    disabled={registerMutation.isPending}
-                  >
-                    <Crown className="mr-2 h-4 w-4" />
-                    {registerMutation.isPending ? "Создание аккаунта..." : "Создать аккаунт"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-white flex items-center gap-2">
+                        <Lock className="w-4 h-4" />
+                        Пароль
+                      </Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        {...registerForm.register("password")}
+                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                      />
+                      {registerForm.formState.errors.password && (
+                        <p className="text-sm text-red-400">{registerForm.formState.errors.password.message}</p>
+                      )}
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-[#b9ff6a] hover:bg-[#a8e85c] text-black font-semibold"
+                      disabled={registerMutation.isPending}
+                    >
+                      {registerMutation.isPending ? "Создание..." : "Создать аккаунт"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Тарифные планы */}
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-xl font-bold text-white mb-2">Выберите тарифный план</h3>
+                  <p className="text-gray-400">Начните с бесплатного плана и обновите при необходимости</p>
+                </div>
+
+                <div className="space-y-3">
+                  {plans.map((plan) => (
+                    <Card 
+                      key={plan.id}
+                      className={`relative cursor-pointer transition-all border-2 ${
+                        registerForm.watch("plan") === plan.id 
+                          ? "border-[#b9ff6a] bg-gray-800" 
+                          : "border-gray-700 bg-gray-800 hover:border-gray-600"
+                      }`}
+                      onClick={() => registerForm.setValue("plan", plan.id as "basic" | "pro" | "enterprise")}
+                    >
+                      {plan.popular && (
+                        <Badge className="absolute -top-2 left-4 bg-[#b9ff6a] text-black">
+                          <Star className="w-3 h-3 mr-1" />
+                          Популярный
+                        </Badge>
+                      )}
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-[#b9ff6a] rounded-lg text-black">
+                              {plan.icon}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-white">{plan.name}</h4>
+                              <p className="text-sm text-gray-400">{plan.description}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-[#b9ff6a]">{plan.price}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          {plan.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-300">
+                              <CheckCircle className="w-4 h-4 text-[#b9ff6a]" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </DialogContent>
