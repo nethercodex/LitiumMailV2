@@ -126,19 +126,45 @@ export class LitiumMailServer {
       // Парсим входящее письмо
       const parsed = await simpleParser(stream);
       
-      // Извлекаем данные письма
-      const emailData = {
-        fromUserId: session.user.id,
-        toEmail: parsed.to?.text || '',
-        subject: parsed.subject || 'Без темы',
-        body: parsed.html || parsed.text || '',
-        sentAt: new Date(),
-      };
-
-      // Сохраняем письмо в базу данных
-      await storage.sendEmail(session.user.id, emailData);
+      const fromEmail = parsed.from?.text || '';
+      const toEmail = parsed.to?.text || '';
+      const subject = parsed.subject || 'Без темы';
+      const body = parsed.html || parsed.text || '';
       
-      console.log(`Email saved: ${emailData.subject} from ${session.user.username}`);
+      console.log(`Incoming email: ${fromEmail} -> ${toEmail}: ${subject}`);
+      
+      // Для внутренних писем между @litium.space пользователями
+      if (toEmail.includes('@litium.space')) {
+        const recipientUsername = toEmail.split('@')[0];
+        const { storage } = await import('./storage');
+        
+        // Проверяем существование получателя
+        const recipient = await storage.getUserByUsername(recipientUsername);
+        
+        if (recipient) {
+          // Определяем отправителя
+          let fromUserId = 'external';
+          if (fromEmail.includes('@litium.space')) {
+            const senderUsername = fromEmail.split('@')[0];
+            const sender = await storage.getUserByUsername(senderUsername);
+            if (sender) {
+              fromUserId = sender.id;
+            }
+          }
+          
+          // Сохраняем письмо в базу данных для получателя
+          await storage.sendEmail(fromUserId, {
+            toEmail: toEmail,
+            subject: subject,
+            body: body
+          });
+          
+          console.log(`Internal email delivered to ${recipientUsername}`);
+        } else {
+          console.log(`Recipient ${recipientUsername} not found`);
+        }
+      }
+      
       callback();
     } catch (error) {
       console.error('Data handling error:', error);

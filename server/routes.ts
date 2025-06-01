@@ -212,17 +212,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Заполните все поля" });
       }
 
-      // Отправляем письмо через собственный SMTP сервер
+      console.log(`Sending email from ${fromUserId} to ${toEmail}: ${subject}`);
+
+      // Сохраняем письмо в отправленных у отправителя
       const email = await storage.sendEmail(fromUserId, { toEmail, subject, body });
       
-      // Также отправляем через SMTP сервер для доставки
-      try {
-        const senderUser = await storage.getUser(fromUserId);
-        const fromEmail = `${senderUser?.username}@litium.space`;
-        await mailServer.sendEmail(fromEmail, toEmail, subject, body);
-      } catch (smtpError) {
-        console.error("SMTP delivery error:", smtpError);
-        // Не прерываем операцию, письмо уже сохранено в базе
+      // Для внутренних писем @litium.space также создаем входящее для получателя
+      if (toEmail.includes('@litium.space')) {
+        const recipientUsername = toEmail.split('@')[0];
+        const recipient = await storage.getUserByUsername(recipientUsername);
+        
+        if (recipient) {
+          // Создаем входящее письмо для получателя
+          await storage.sendEmail(fromUserId, { 
+            toEmail: toEmail, 
+            subject: subject, 
+            body: body 
+          });
+          console.log(`Internal email delivered to ${recipientUsername}`);
+        } else {
+          console.log(`Recipient ${recipientUsername} not found`);
+        }
+      } else {
+        // Для внешних адресов используем SMTP сервер
+        try {
+          const senderUser = await storage.getUser(fromUserId);
+          const fromEmail = `${senderUser?.username}@litium.space`;
+          await mailServer.sendEmail(fromEmail, toEmail, subject, body);
+          console.log(`External email sent via SMTP to ${toEmail}`);
+        } catch (smtpError) {
+          console.error("SMTP delivery error:", smtpError);
+          return res.status(500).json({ message: "Ошибка отправки внешнего письма. Настройте SMTP в админ панели." });
+        }
       }
 
       res.json({ message: "Письмо отправлено", email });
