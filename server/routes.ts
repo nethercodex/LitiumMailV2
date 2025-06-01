@@ -1,32 +1,32 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
 
-// Простая сессия для пользователей
-const userSessions = new Map<string, any>();
+// Настройка постоянных сессий с базой данных
+const sessionTtl = 30 * 24 * 60 * 60 * 1000; // 30 дней в миллисекундах
+const pgStore = connectPg(session);
+
+const sessionStore = new pgStore({
+  conString: process.env.DATABASE_URL,
+  createTableIfMissing: false,
+  ttl: sessionTtl,
+  tableName: "sessions",
+});
 
 // Middleware для проверки аутентификации
 const requireAuth = async (req: any, res: any, next: any) => {
   try {
-    console.log("Auth middleware - method:", req.method, "path:", req.path);
-    console.log("Auth middleware - cookies:", req.cookies);
-    const sessionId = req.cookies?.sessionId;
-    console.log("Auth middleware - sessionId:", sessionId);
-    const session = userSessions.get(sessionId);
-    console.log("Auth middleware - session found:", !!session);
-    
-    if (!session) {
-      console.log("Auth middleware - no session, returning 401");
+    if (!req.session?.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    req.user = session.user;
-    console.log("Auth middleware - user authenticated:", req.user?.id);
+    req.user = req.session.user;
     next();
   } catch (error) {
-    console.log("Auth middleware - error:", error);
     res.status(401).json({ message: "Unauthorized" });
   }
 };
@@ -34,6 +34,21 @@ const requireAuth = async (req: any, res: any, next: any) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Добавляем cookie parser
   app.use(cookieParser());
+  
+  // Настройка сессий с базой данных
+  app.use(session({
+    store: sessionStore,
+    secret: process.env.SESSION_SECRET || 'litium-space-secret-key-2025',
+    resave: false,
+    saveUninitialized: false,
+    name: 'litium.session',
+    cookie: {
+      secure: false, // true для HTTPS в продакшене
+      httpOnly: true,
+      maxAge: sessionTtl,
+      sameSite: 'lax'
+    }
+  }));
 
   // Custom Auth routes
   app.post('/api/register', async (req, res) => {
@@ -55,10 +70,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser(userData);
       
       // Создаем сессию
-      const sessionId = Math.random().toString(36);
-      userSessions.set(sessionId, { userId: user.id, user });
+      (req as any).session.user = user;
       
-      res.cookie('sessionId', sessionId, { httpOnly: true });
       res.json({ user, message: "Регистрация успешна" });
     } catch (error) {
       console.error("Registration error:", error);
@@ -76,10 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Создаем сессию
-      const sessionId = Math.random().toString(36);
-      userSessions.set(sessionId, { userId: user.id, user });
+      (req as any).session.user = user;
       
-      res.cookie('sessionId', sessionId, { httpOnly: true });
       res.json({ user, message: "Вход выполнен успешно" });
     } catch (error) {
       console.error("Login error:", error);
@@ -97,13 +108,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/logout', (req, res) => {
-    const sessionId = req.cookies?.sessionId;
-    if (sessionId) {
-      userSessions.delete(sessionId);
-    }
-    res.clearCookie('sessionId');
-    res.json({ message: "Выход выполнен успешно" });
+  app.post('/api/logout', (req: any, res) => {
+    req.session.destroy(() => {
+      res.clearCookie('litium.session');
+      res.json({ message: "Выход выполнен успешно" });
+    });
   });
 
   // Admin routes
