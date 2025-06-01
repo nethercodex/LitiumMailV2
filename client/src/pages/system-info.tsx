@@ -242,7 +242,7 @@ export default function SystemInfo() {
             <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
               <div>
                 <div className="font-medium text-white">Текущая версия</div>
-                <div className="text-sm text-gray-400">{systemInfo?.version || "1.2.0"}</div>
+                <div className="text-sm text-gray-400">{systemInfo?.version || APP_VERSION}</div>
               </div>
               <Badge variant="outline" className="text-[#b9ff6a] border-[#b9ff6a]">
                 Установлена
