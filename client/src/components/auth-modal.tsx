@@ -151,21 +151,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto bg-black border-[#b9ff6a]/20 shadow-2xl">
-        <DialogHeader className="space-y-4 pb-6">
-          <div className="flex items-center justify-center space-x-3">
-            <div className="w-12 h-12 bg-[#b9ff6a] rounded-xl flex items-center justify-center">
-              <Mail className="w-7 h-7 text-black" />
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black border-[#b9ff6a]/20 shadow-2xl">
+        <DialogHeader className="space-y-2 pb-4">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-8 h-8 bg-[#b9ff6a] rounded-lg flex items-center justify-center">
+              <Mail className="w-5 h-5 text-black" />
             </div>
-            <DialogTitle className="text-3xl font-bold text-[#b9ff6a]">
+            <DialogTitle className="text-2xl font-bold text-[#b9ff6a]">
               LITIUM.SPACE
             </DialogTitle>
           </div>
-          <p className="text-white/70 text-center text-lg">Современная почтовая система нового поколения</p>
+          <p className="text-white/70 text-center text-sm">Современная почтовая система нового поколения</p>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-black border border-[#b9ff6a]/30 rounded-xl p-2 mb-8">
+          <TabsList className="grid w-full grid-cols-2 bg-black border border-[#b9ff6a]/30 rounded-xl p-2 mb-4">
             <TabsTrigger 
               value="login" 
               className="rounded-lg text-white/70 font-semibold transition-all duration-300 data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
@@ -184,21 +184,21 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <TabsContent value="login">
             <div className="max-w-md mx-auto">
               <Card className="bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
-                <CardHeader className="text-center pb-8">
-                  <div className="w-16 h-16 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Lock className="w-8 h-8 text-black" />
+                <CardHeader className="text-center pb-4">
+                  <div className="w-12 h-12 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Lock className="w-6 h-6 text-black" />
                   </div>
-                  <CardTitle className="text-2xl font-bold text-white mb-2">Вход в систему</CardTitle>
-                  <CardDescription className="text-white/60 text-lg">
+                  <CardTitle className="text-xl font-bold text-white mb-1">Вход в систему</CardTitle>
+                  <CardDescription className="text-white/60 text-sm">
                     Войдите в свой аккаунт LITIUM.SPACE
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-                    <div className="space-y-3">
-                      <Label htmlFor="username" className="text-white flex items-center gap-3 text-sm font-medium">
-                        <div className="w-8 h-8 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
-                          <User className="w-4 h-4 text-[#b9ff6a]" />
+                <CardContent className="space-y-4">
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="username" className="text-white flex items-center gap-2 text-sm font-medium">
+                        <div className="w-6 h-6 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
+                          <User className="w-3 h-3 text-[#b9ff6a]" />
                         </div>
                         Имя пользователя
                       </Label>
@@ -206,7 +206,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         id="username"
                         placeholder="Введите имя пользователя"
                         {...loginForm.register("username")}
-                        className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        className="h-10 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                       />
                       {loginForm.formState.errors.username && (
                         <p className="text-sm text-red-400 flex items-center gap-2">
@@ -218,10 +218,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       )}
                     </div>
 
-                    <div className="space-y-3">
-                      <Label htmlFor="password" className="text-white flex items-center gap-3 text-sm font-medium">
-                        <div className="w-8 h-8 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
-                          <Lock className="w-4 h-4 text-[#b9ff6a]" />
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-white flex items-center gap-2 text-sm font-medium">
+                        <div className="w-6 h-6 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
+                          <Lock className="w-3 h-3 text-[#b9ff6a]" />
                         </div>
                         Пароль
                       </Label>
@@ -230,7 +230,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         type="password"
                         placeholder="Введите пароль"
                         {...loginForm.register("password")}
-                        className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        className="h-10 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                       />
                       {loginForm.formState.errors.password && (
                         <p className="text-sm text-red-400 flex items-center gap-2">
@@ -244,7 +244,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 bg-[#b9ff6a] hover:bg-[#b9ff6a]/90 text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                      className="w-full h-10 bg-[#b9ff6a] hover:bg-[#b9ff6a]/90 text-black font-bold text-sm rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? (
@@ -283,25 +283,25 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {/* Форма регистрации */}
               <div className="xl:col-span-3">
                 <Card className="bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
-                  <CardHeader className="text-center pb-6">
-                    <div className="w-16 h-16 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-4">
-                      <User className="w-8 h-8 text-black" />
+                  <CardHeader className="text-center pb-3">
+                    <div className="w-12 h-12 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-2">
+                      <User className="w-6 h-6 text-black" />
                     </div>
-                    <CardTitle className="text-2xl font-bold text-white mb-2">Создать аккаунт</CardTitle>
-                    <CardDescription className="text-white/60 text-lg">
+                    <CardTitle className="text-xl font-bold text-white mb-1">Создать аккаунт</CardTitle>
+                    <CardDescription className="text-white/60 text-sm">
                       Присоединяйтесь к LITIUM.SPACE сегодня
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-6">
-                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-3">
+                  <CardContent className="space-y-4">
+                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
                           <Label htmlFor="firstName" className="text-white text-sm font-medium">Имя</Label>
                           <Input
                             id="firstName"
                             placeholder="Иван"
                             {...registerForm.register("firstName")}
-                            className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                            className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                           />
                           {registerForm.formState.errors.firstName && (
                             <p className="text-sm text-red-400 flex items-center gap-2">
