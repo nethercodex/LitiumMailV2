@@ -7,6 +7,7 @@ import {
   index,
   serial,
   boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -78,6 +79,23 @@ export const emailRecipients = pgTable("email_recipients", {
   isRead: boolean("is_read").default(false).notNull(),
   isDeleted: boolean("is_deleted").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Mail server settings table
+export const mailServerSettings = pgTable("mail_server_settings", {
+  id: serial("id").primaryKey(),
+  smtpHost: varchar("smtp_host", { length: 255 }).notNull(),
+  smtpPort: integer("smtp_port").notNull().default(587),
+  smtpSecure: boolean("smtp_secure").default(true),
+  smtpUser: varchar("smtp_user", { length: 255 }).notNull(),
+  smtpPassword: varchar("smtp_password", { length: 255 }).notNull(),
+  imapHost: varchar("imap_host", { length: 255 }).notNull(),
+  imapPort: integer("imap_port").notNull().default(993),
+  imapSecure: boolean("imap_secure").default(true),
+  domain: varchar("domain", { length: 255 }).notNull().default("litium.space"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Relations
@@ -160,3 +178,5 @@ export type EmailWithSender = Email & { sender: User };
 export type EmailWithDetails = Email & { sender: User; isRead: boolean };
 export type UserSession = typeof userSessions.$inferSelect;
 export type InsertUserSession = typeof userSessions.$inferInsert;
+export type MailServerSettings = typeof mailServerSettings.$inferSelect;
+export type InsertMailServerSettings = typeof mailServerSettings.$inferInsert;

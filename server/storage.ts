@@ -51,6 +51,10 @@ export interface IStorage {
   getEmailsCount(): Promise<number>;
   getRecentUsersCount(): Promise<number>;
   getRecentEmailsCount(): Promise<number>;
+  
+  // Mail server settings
+  getMailServerSettings(): Promise<MailServerSettings | undefined>;
+  updateMailServerSettings(settings: InsertMailServerSettings): Promise<MailServerSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -394,6 +398,31 @@ export class DatabaseStorage implements IStorage {
       .from(emails)
       .where(sql`${emails.createdAt} >= ${thirtyDaysAgo}`);
     return result[0].count;
+  }
+
+  // Mail server settings methods
+  async getMailServerSettings(): Promise<MailServerSettings | undefined> {
+    const [settings] = await db.select().from(mailServerSettings).where(eq(mailServerSettings.isActive, true));
+    return settings;
+  }
+
+  async updateMailServerSettings(settingsData: InsertMailServerSettings): Promise<MailServerSettings> {
+    // Деактивируем все существующие настройки
+    await db
+      .update(mailServerSettings)
+      .set({ isActive: false, updatedAt: new Date() });
+
+    // Создаем новые активные настройки
+    const [settings] = await db
+      .insert(mailServerSettings)
+      .values({
+        ...settingsData,
+        isActive: true,
+        updatedAt: new Date(),
+      })
+      .returning();
+    
+    return settings;
   }
 }
 
