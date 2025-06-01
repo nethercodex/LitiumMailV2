@@ -2155,6 +2155,10 @@ function AdminSecuritySettings() {
     }));
   };
 
+  const handleGenerateKey = () => {
+    generateKeyMutation.mutate();
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
