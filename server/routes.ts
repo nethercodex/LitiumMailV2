@@ -415,6 +415,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/system-info", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const packageJson = require('../package.json');
+      const dependencies = {
+        'react': {
+          version: packageJson.dependencies?.react || 'N/A',
+          status: 'working',
+          description: 'Библиотека для пользовательского интерфейса'
+        },
+        'express': {
+          version: packageJson.dependencies?.express || 'N/A',
+          status: 'working',
+          description: 'Веб-фреймворк для Node.js'
+        },
+        'drizzle-orm': {
+          version: packageJson.dependencies?.['drizzle-orm'] || 'N/A',
+          status: 'working',
+          description: 'Современный TypeScript ORM'
+        },
+        'nodemailer': {
+          version: packageJson.dependencies?.nodemailer || 'N/A',
+          status: 'working',
+          description: 'Отправка электронной почты'
+        },
+        'smtp-server': {
+          version: packageJson.dependencies?.['smtp-server'] || 'N/A',
+          status: 'working',
+          description: 'Собственный SMTP сервер'
+        },
+        'tailwindcss': {
+          version: packageJson.dependencies?.tailwindcss || 'N/A',
+          status: 'working',
+          description: 'CSS фреймворк'
+        },
+        'typescript': {
+          version: packageJson.dependencies?.typescript || 'N/A',
+          status: 'working',
+          description: 'Типизированный JavaScript'
+        },
+        'wouter': {
+          version: packageJson.dependencies?.wouter || 'N/A',
+          status: 'working',
+          description: 'Легковесная маршрутизация'
+        }
+      };
+
+      const systemInfo = {
+        version: packageJson.version || '1.0.0',
+        nodeVersion: process.version,
+        platform: process.platform,
+        uptime: Math.floor(process.uptime()),
+        memoryUsage: process.memoryUsage(),
+        dependencies
+      };
+
+      res.json(systemInfo);
+    } catch (error) {
+      console.error("Error fetching system info:", error);
+      res.status(500).json({ message: "Failed to fetch system info" });
+    }
+  });
+
   app.get("/api/admin/users", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
