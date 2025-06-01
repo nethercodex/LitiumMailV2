@@ -1051,6 +1051,52 @@ function MailServerSettings() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Быстрая настройка популярных провайдеров */}
+            <div className="bg-gray-900/30 p-4 rounded-lg border border-gray-700">
+              <h4 className="text-gray-300 font-medium mb-3">Быстрая настройка популярных провайдеров:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Button
+                  onClick={() => setFormData({
+                    ...formData,
+                    smtpHost: 'smtp.gmail.com',
+                    smtpPort: 587,
+                    smtpSecure: true
+                  })}
+                  variant="outline"
+                  className="border-gray-600 hover:border-[#b9ff6a] hover:text-[#b9ff6a]"
+                >
+                  Gmail
+                </Button>
+                <Button
+                  onClick={() => setFormData({
+                    ...formData,
+                    smtpHost: 'smtp.yandex.ru',
+                    smtpPort: 587,
+                    smtpSecure: true
+                  })}
+                  variant="outline"
+                  className="border-gray-600 hover:border-[#b9ff6a] hover:text-[#b9ff6a]"
+                >
+                  Yandex
+                </Button>
+                <Button
+                  onClick={() => setFormData({
+                    ...formData,
+                    smtpHost: 'smtp.mail.ru',
+                    smtpPort: 587,
+                    smtpSecure: true
+                  })}
+                  variant="outline"
+                  className="border-gray-600 hover:border-[#b9ff6a] hover:text-[#b9ff6a]"
+                >
+                  Mail.ru
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                После выбора провайдера укажите логин и пароль от почтового ящика
+              </p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="smtpHost" className="text-gray-300">

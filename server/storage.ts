@@ -173,8 +173,50 @@ support@litium.space
       })
       .returning();
 
+    // Если письмо не для @litium.space домена, отправляем через внешний SMTP
+    if (!emailData.toEmail.includes('@litium.space')) {
+      try {
+        await this.sendExternalEmail(fromUserId, emailData);
+        console.log(`External email sent: ${fromUserId} -> ${emailData.toEmail}`);
+      } catch (error) {
+        console.error('Failed to send external email:', error);
+      }
+    }
+
     console.log(`Email saved: ${fromUserId} -> ${emailData.toEmail}: ${emailData.subject}`);
     return email;
+  }
+
+  private async sendExternalEmail(fromUserId: string, emailData: InsertEmail): Promise<void> {
+    // Получаем настройки SMTP
+    const settings = await this.getMailServerSettings();
+    if (!settings || !settings.smtpHost) {
+      throw new Error('SMTP settings not configured');
+    }
+
+    // Получаем данные отправителя
+    const sender = await this.getUser(fromUserId);
+    const fromEmail = sender?.email || 'noreply@litium.space';
+
+    // Создаем транспорт для отправки
+    const nodemailer = await import('nodemailer');
+    const transporter = nodemailer.default.createTransporter({
+      host: settings.smtpHost,
+      port: settings.smtpPort,
+      secure: settings.smtpSecure,
+      auth: settings.smtpUser && settings.smtpPassword ? {
+        user: settings.smtpUser,
+        pass: settings.smtpPassword,
+      } : undefined,
+    });
+
+    // Отправляем письмо
+    await transporter.sendMail({
+      from: fromEmail,
+      to: emailData.toEmail,
+      subject: emailData.subject,
+      html: emailData.body,
+    });
   }
 
   async getInboxEmails(userId: string): Promise<EmailWithDetails[]> {
