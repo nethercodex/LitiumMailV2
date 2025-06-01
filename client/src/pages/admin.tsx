@@ -6,11 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState('dashboard');
+
+  // Fetch admin statistics
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["/api/admin/stats"],
+    enabled: !!user && user.id === 'support',
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {

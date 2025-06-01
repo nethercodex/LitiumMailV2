@@ -99,6 +99,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: "Выход выполнен успешно" });
   });
 
+  // Admin routes
+  app.get("/api/admin/stats", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const totalUsers = await storage.getUsersCount();
+      const totalEmails = await storage.getEmailsCount();
+      const recentUsers = await storage.getRecentUsersCount();
+      const recentEmails = await storage.getRecentEmailsCount();
+      
+      // Calculate growth percentages
+      const userGrowth = totalUsers > 0 ? Math.round((recentUsers / Math.max(totalUsers - recentUsers, 1)) * 100) : 0;
+      const emailGrowth = totalEmails > 0 ? Math.round((recentEmails / Math.max(totalEmails - recentEmails, 1)) * 100) : 0;
+
+      res.json({
+        totalUsers,
+        totalEmails,
+        recentUsers,
+        recentEmails,
+        userGrowth,
+        emailGrowth,
+        systemUptime: 99.5,
+        serversOnline: "1/1"
+      });
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
   // Email routes
   app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {

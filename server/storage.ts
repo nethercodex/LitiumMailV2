@@ -13,7 +13,7 @@ import {
   type LoginData,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, like } from "drizzle-orm";
+import { eq, desc, and, or, like, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -32,6 +32,12 @@ export interface IStorage {
   markEmailAsRead(emailId: number, userId: string): Promise<void>;
   deleteEmail(emailId: number, userId: string): Promise<void>;
   searchEmails(userId: string, query: string): Promise<EmailWithDetails[]>;
+  
+  // Admin statistics
+  getUsersCount(): Promise<number>;
+  getEmailsCount(): Promise<number>;
+  getRecentUsersCount(): Promise<number>;
+  getRecentEmailsCount(): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -270,6 +276,37 @@ export class DatabaseStorage implements IStorage {
       ...row,
       isRead: row.isRead || false,
     }));
+  }
+
+  // Admin statistics methods
+  async getUsersCount(): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(users);
+    return result[0].count;
+  }
+
+  async getEmailsCount(): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(emails);
+    return result[0].count;
+  }
+
+  async getRecentUsersCount(): Promise<number> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const result = await db.select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(sql`${users.createdAt} >= ${thirtyDaysAgo}`);
+    return result[0].count;
+  }
+
+  async getRecentEmailsCount(): Promise<number> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const result = await db.select({ count: sql<number>`count(*)` })
+      .from(emails)
+      .where(sql`${emails.createdAt} >= ${thirtyDaysAgo}`);
+    return result[0].count;
   }
 }
 
