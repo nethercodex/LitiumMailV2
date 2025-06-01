@@ -1,6 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +19,66 @@ export default function Security() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      return await apiRequest("/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Пароль изменен",
+        description: "Ваш пароль успешно обновлен",
+      });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось изменить пароль",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handlePasswordChange = () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните все поля",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Новые пароли не совпадают",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Ошибка",
+        description: "Пароль должен содержать минимум 8 символов",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    changePasswordMutation.mutate({ currentPassword, newPassword });
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -96,6 +158,8 @@ export default function Security() {
                       id="currentPassword"
                       type={showCurrentPassword ? "text" : "password"}
                       placeholder="Введите текущий пароль"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
@@ -196,35 +260,37 @@ export default function Security() {
             </Card>
 
             {/* Привязка номера телефона */}
-            <Card className="bg-surface border-surface-lighter mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
-                  <Phone className="w-5 h-5 text-primary" />
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20 mt-8">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                    <Phone className="w-5 h-5 text-black" />
+                  </div>
                   <span>Номер телефона</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl backdrop-blur-sm">
                   <div>
                     <p className="text-white font-medium">Привязка номера телефона</p>
-                    <p className="text-sm text-text-muted">Добавьте номер для восстановления доступа</p>
+                    <p className="text-sm text-gray-300">Добавьте номер для восстановления доступа</p>
                   </div>
-                  <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30">
+                  <Badge variant="outline" className="bg-orange-500/20 text-orange-300 border-orange-500/40 px-3 py-1">
                     Не привязан
                   </Badge>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-white text-sm">Номер телефона</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="phone" className="text-gray-200 text-sm font-medium">Номер телефона</Label>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="+7 (900) 123-45-67"
-                    className="bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20"
+                    className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 h-12 backdrop-blur-sm transition-all duration-200"
                   />
                 </div>
 
-                <Button className="w-full bg-primary text-dark hover:bg-primary/90 font-medium">
+                <Button className="w-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#97d548] font-semibold h-12 rounded-xl shadow-lg shadow-[#b9ff6a]/20 transition-all duration-200">
                   Привязать номер
                 </Button>
               </CardContent>
@@ -233,78 +299,111 @@ export default function Security() {
 
           {/* Статус безопасности */}
           <div>
-            <Card className="bg-surface border-surface-lighter">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
-                  <Key className="w-5 h-5 text-primary" />
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                    <Key className="w-5 h-5 text-black" />
+                  </div>
                   <span>Статус безопасности</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-white">Пароль</span>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl backdrop-blur-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-sm text-white font-medium">Пароль</span>
+                    </div>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
                       Установлен
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-white">Email</span>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl backdrop-blur-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-sm text-white font-medium">Email</span>
+                    </div>
+                    <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
                       Подтвержден
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-white">Телефон</span>
-                    <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl backdrop-blur-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                      <span className="text-sm text-white font-medium">Телефон</span>
+                    </div>
+                    <Badge variant="outline" className="bg-orange-500/20 text-orange-300 border-orange-500/40 px-3 py-1">
                       Не привязан
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-white">2FA</span>
-                    <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/30">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 rounded-xl backdrop-blur-sm">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <span className="text-sm text-white font-medium">2FA</span>
+                    </div>
+                    <Badge variant="outline" className="bg-red-500/20 text-red-300 border-red-500/40 px-3 py-1">
                       Отключена
                     </Badge>
                   </div>
                 </div>
 
-                <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
-                  <p className="text-sm text-orange-300 font-medium mb-2">Рекомендации:</p>
-                  <ul className="text-xs text-text-muted space-y-1">
-                    <li>• Привяжите номер телефона</li>
-                    <li>• Включите двухфакторную аутентификацию</li>
-                    <li>• Регулярно меняйте пароль</li>
+                <div className="p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl backdrop-blur-sm">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <AlertTriangle className="h-5 w-5 text-orange-300" />
+                    <p className="text-sm text-orange-300 font-medium">Рекомендации:</p>
+                  </div>
+                  <ul className="text-xs text-gray-300 space-y-1.5">
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
+                      <span>Привяжите номер телефона</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
+                      <span>Включите двухфакторную аутентификацию</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
+                      <span>Регулярно меняйте пароль</span>
+                    </li>
                   </ul>
                 </div>
               </CardContent>
             </Card>
 
             {/* Сессии */}
-            <Card className="bg-surface border-surface-lighter mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
-                  <Shield className="w-5 h-5 text-primary" />
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20 mt-8">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                    <Shield className="w-5 h-5 text-black" />
+                  </div>
                   <span>Активные сессии</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="p-3 bg-black/30 rounded-lg border border-surface-lighter">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-white">Текущий браузер</span>
-                      <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30 text-xs">
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium text-white">Текущий браузер</span>
+                      </div>
+                      <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
                         Активна
                       </Badge>
                     </div>
-                    <p className="text-xs text-text-muted">Chrome • Россия, Москва</p>
-                    <p className="text-xs text-text-muted">Сегодня в 14:35</p>
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-300">Chrome • Россия, Москва</p>
+                      <p className="text-xs text-gray-400">Сегодня в 14:35</p>
+                    </div>
                   </div>
                 </div>
 
-                <Button variant="outline" className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10">
+                <Button variant="outline" className="w-full border-red-500/40 text-red-300 hover:bg-red-500/10 hover:text-red-200 h-12 rounded-xl transition-all duration-200">
                   Завершить все сессии
                 </Button>
               </CardContent>
