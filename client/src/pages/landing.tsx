@@ -462,7 +462,7 @@ export default function Landing() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start mt-8">
             {/* Basic Plan */}
             <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -517,15 +517,16 @@ export default function Landing() {
             </Card>
             
             {/* Pro Plan */}
-            <Card className="bg-surface border-2 border-primary relative card-hover glow-primary group overflow-hidden mt-4">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
-                <span className="bg-primary text-dark px-6 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
+            <div className="relative mt-6">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-30">
+                <span className="bg-primary text-dark px-6 py-2 rounded-full text-sm font-bold shadow-xl whitespace-nowrap">
                   🔥 Популярный
                 </span>
               </div>
-              
-              <CardContent className="p-8 relative z-10 pt-12">
+              <Card className="bg-surface border-2 border-primary relative card-hover glow-primary group overflow-visible">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
+                <CardContent className="p-8 relative z-10 pt-12">
                 <div className="text-center mb-8">
                   <div className="w-20 h-20 bg-gradient-to-br from-primary/30 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 pulse-glow shadow-xl shadow-primary/30">
                     <Zap className="text-primary h-10 w-10" />
@@ -583,8 +584,9 @@ export default function Landing() {
                   <Zap className="mr-2 h-5 w-5" />
                   Выбрать план
                 </Button>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
             
             {/* Enterprise Plan */}
             <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
