@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { getPlanDisplayName, getPlanPrice } from "@shared/plans";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
@@ -43,18 +44,9 @@ export default function Profile() {
   const getPlanColor = (plan: string) => {
     switch (plan) {
       case 'basic': return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-      case 'pro': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+      case 'pro': return 'bg-primary/20 text-primary border-primary/30';
       case 'enterprise': return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
       default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-    }
-  };
-
-  const getPlanName = (plan: string) => {
-    switch (plan) {
-      case 'basic': return 'Базовый';
-      case 'pro': return 'Профессиональный';
-      case 'enterprise': return 'Корпоративный';
-      default: return 'Неизвестный';
     }
   };
 
@@ -152,7 +144,7 @@ export default function Profile() {
               <CardContent className="space-y-4">
                 <div>
                   <Badge className={`${getPlanColor(user.plan)} px-3 py-1 text-sm font-medium border`}>
-                    {getPlanName(user.plan)}
+                    {getPlanDisplayName(user.plan)}
                   </Badge>
                 </div>
 
