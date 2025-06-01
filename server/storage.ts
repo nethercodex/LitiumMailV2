@@ -3,52 +3,46 @@ import {
   emails,
   emailRecipients,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type InsertEmail,
   type Email,
   type EmailWithSender,
   type EmailWithDetails,
   type EmailRecipient,
+  type RegisterData,
+  type LoginData,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(userData: RegisterData): Promise<User>;
+  validateUser(username: string, password: string): Promise<User | undefined>;
   
   // Email operations
-  sendEmail(fromUserId: string, email: InsertEmail): Promise<Email>;
-  getInboxEmails(userId: string): Promise<EmailWithDetails[]>;
-  getSentEmails(userId: string): Promise<EmailWithSender[]>;
-  getEmailById(emailId: number, userId: string): Promise<EmailWithSender | undefined>;
-  markEmailAsRead(emailId: number, userId: string): Promise<void>;
-  deleteEmail(emailId: number, userId: string): Promise<void>;
-  searchEmails(userId: string, query: string): Promise<EmailWithDetails[]>;
-  getUserByEmail(email: string): Promise<User | undefined>;
+  sendEmail(fromUserId: number, email: InsertEmail): Promise<Email>;
+  getInboxEmails(userId: number): Promise<EmailWithDetails[]>;
+  getSentEmails(userId: number): Promise<EmailWithSender[]>;
+  getEmailById(emailId: number, userId: number): Promise<EmailWithSender | undefined>;
+  markEmailAsRead(emailId: number, userId: number): Promise<void>;
+  deleteEmail(emailId: number, userId: number): Promise<void>;
+  searchEmails(userId: number, query: string): Promise<EmailWithDetails[]>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
 
@@ -57,34 +51,57 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async createUser(userData: RegisterData): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: userData.username,
+        email: userData.email,
+        password: userData.password, // В реальном приложении пароль должен быть захеширован
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        plan: userData.plan,
+        isActive: true,
+      })
+      .returning();
+    return user;
+  }
+
+  async validateUser(username: string, password: string): Promise<User | undefined> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.username, username), eq(users.password, password)));
+    return user;
+  }
+
   // Email operations
-  async sendEmail(fromUserId: string, emailData: InsertEmail): Promise<Email> {
-    // Create the email
+  async sendEmail(fromUserId: number, emailData: InsertEmail): Promise<Email> {
     const [email] = await db
       .insert(emails)
       .values({
-        fromUserId,
+        fromUserId: fromUserId,
         toEmail: emailData.toEmail,
         subject: emailData.subject,
         body: emailData.body,
+        sentAt: new Date(),
       })
       .returning();
 
-    // Find recipient user by email
-    const recipientUser = await this.getUserByEmail(emailData.toEmail);
-    
-    // If recipient exists in our system, add to their inbox
-    if (recipientUser) {
+    // Найти получателя по email адресу
+    const recipient = await this.getUserByEmail(emailData.toEmail);
+    if (recipient) {
       await db.insert(emailRecipients).values({
         emailId: email.id,
-        userId: recipientUser.id,
+        userId: recipient.id,
+        isRead: false,
       });
     }
 
     return email;
   }
 
-  async getInboxEmails(userId: string): Promise<EmailWithDetails[]> {
+  async getInboxEmails(userId: number): Promise<EmailWithDetails[]> {
     const result = await db
       .select({
         id: emails.id,
@@ -92,34 +109,34 @@ export class DatabaseStorage implements IStorage {
         toEmail: emails.toEmail,
         subject: emails.subject,
         body: emails.body,
-        isRead: emailRecipients.isRead,
-        createdAt: emails.createdAt,
-        updatedAt: emails.updatedAt,
+        sentAt: emails.sentAt,
         sender: {
           id: users.id,
+          username: users.username,
           email: users.email,
+          password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
-          profileImageUrl: users.profileImageUrl,
+          plan: users.plan,
+          isActive: users.isActive,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
+        isRead: emailRecipients.isRead,
       })
-      .from(emailRecipients)
-      .innerJoin(emails, eq(emailRecipients.emailId, emails.id))
+      .from(emails)
       .innerJoin(users, eq(emails.fromUserId, users.id))
-      .where(
-        and(
-          eq(emailRecipients.userId, userId),
-          eq(emailRecipients.isDeleted, false)
-        )
-      )
-      .orderBy(desc(emails.createdAt));
+      .innerJoin(emailRecipients, eq(emails.id, emailRecipients.emailId))
+      .where(eq(emailRecipients.userId, userId))
+      .orderBy(desc(emails.sentAt));
 
-    return result;
+    return result.map(row => ({
+      ...row,
+      isRead: row.isRead || false,
+    }));
   }
 
-  async getSentEmails(userId: string): Promise<EmailWithSender[]> {
+  async getSentEmails(userId: number): Promise<EmailWithSender[]> {
     const result = await db
       .select({
         id: emails.id,
@@ -127,15 +144,16 @@ export class DatabaseStorage implements IStorage {
         toEmail: emails.toEmail,
         subject: emails.subject,
         body: emails.body,
-        isRead: emails.isRead,
-        createdAt: emails.createdAt,
-        updatedAt: emails.updatedAt,
+        sentAt: emails.sentAt,
         sender: {
           id: users.id,
+          username: users.username,
           email: users.email,
+          password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
-          profileImageUrl: users.profileImageUrl,
+          plan: users.plan,
+          isActive: users.isActive,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
@@ -143,13 +161,12 @@ export class DatabaseStorage implements IStorage {
       .from(emails)
       .innerJoin(users, eq(emails.fromUserId, users.id))
       .where(eq(emails.fromUserId, userId))
-      .orderBy(desc(emails.createdAt));
+      .orderBy(desc(emails.sentAt));
 
     return result;
   }
 
-  async getEmailById(emailId: number, userId: string): Promise<EmailWithSender | undefined> {
-    // Check if user can access this email (either sent by them or received by them)
+  async getEmailById(emailId: number, userId: number): Promise<EmailWithSender | undefined> {
     const [result] = await db
       .select({
         id: emails.id,
@@ -157,22 +174,22 @@ export class DatabaseStorage implements IStorage {
         toEmail: emails.toEmail,
         subject: emails.subject,
         body: emails.body,
-        isRead: emails.isRead,
-        createdAt: emails.createdAt,
-        updatedAt: emails.updatedAt,
+        sentAt: emails.sentAt,
         sender: {
           id: users.id,
+          username: users.username,
           email: users.email,
+          password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
-          profileImageUrl: users.profileImageUrl,
+          plan: users.plan,
+          isActive: users.isActive,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
       })
       .from(emails)
       .innerJoin(users, eq(emails.fromUserId, users.id))
-      .leftJoin(emailRecipients, eq(emailRecipients.emailId, emails.id))
       .where(
         and(
           eq(emails.id, emailId),
@@ -181,13 +198,13 @@ export class DatabaseStorage implements IStorage {
             eq(emailRecipients.userId, userId)
           )
         )
-      );
+      )
+      .leftJoin(emailRecipients, eq(emails.id, emailRecipients.emailId));
 
     return result;
   }
 
-  async markEmailAsRead(emailId: number, userId: string): Promise<void> {
-    // Mark as read in emailRecipients table if user is recipient
+  async markEmailAsRead(emailId: number, userId: number): Promise<void> {
     await db
       .update(emailRecipients)
       .set({ isRead: true })
@@ -199,11 +216,10 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async deleteEmail(emailId: number, userId: string): Promise<void> {
-    // Soft delete for recipients
+  async deleteEmail(emailId: number, userId: number): Promise<void> {
+    // Удаляем запись получателя
     await db
-      .update(emailRecipients)
-      .set({ isDeleted: true })
+      .delete(emailRecipients)
       .where(
         and(
           eq(emailRecipients.emailId, emailId),
@@ -212,7 +228,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async searchEmails(userId: string, query: string): Promise<EmailWithDetails[]> {
+  async searchEmails(userId: number, query: string): Promise<EmailWithDetails[]> {
     const result = await db
       .select({
         id: emails.id,
@@ -220,36 +236,39 @@ export class DatabaseStorage implements IStorage {
         toEmail: emails.toEmail,
         subject: emails.subject,
         body: emails.body,
-        isRead: emailRecipients.isRead,
-        createdAt: emails.createdAt,
-        updatedAt: emails.updatedAt,
+        sentAt: emails.sentAt,
         sender: {
           id: users.id,
+          username: users.username,
           email: users.email,
+          password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
-          profileImageUrl: users.profileImageUrl,
+          plan: users.plan,
+          isActive: users.isActive,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
+        isRead: emailRecipients.isRead,
       })
-      .from(emailRecipients)
-      .innerJoin(emails, eq(emailRecipients.emailId, emails.id))
+      .from(emails)
       .innerJoin(users, eq(emails.fromUserId, users.id))
+      .innerJoin(emailRecipients, eq(emails.id, emailRecipients.emailId))
       .where(
         and(
           eq(emailRecipients.userId, userId),
-          eq(emailRecipients.isDeleted, false),
           or(
             like(emails.subject, `%${query}%`),
-            like(emails.body, `%${query}%`),
-            like(users.email, `%${query}%`)
+            like(emails.body, `%${query}%`)
           )
         )
       )
-      .orderBy(desc(emails.createdAt));
+      .orderBy(desc(emails.sentAt));
 
-    return result;
+    return result.map(row => ({
+      ...row,
+      isRead: row.isRead || false,
+    }));
   }
 }
 
