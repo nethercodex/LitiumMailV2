@@ -301,7 +301,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             id="firstName"
                             placeholder="Иван"
                             {...registerForm.register("firstName")}
-                            className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                            className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
                           />
                           {registerForm.formState.errors.firstName && (
                             <p className="text-sm text-red-400 flex items-center gap-2">
