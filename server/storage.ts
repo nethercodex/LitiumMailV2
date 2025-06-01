@@ -225,7 +225,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async deleteEmail(emailId: number, userId: number): Promise<void> {
+  async deleteEmail(emailId: number, userId: string): Promise<void> {
     // Удаляем запись получателя
     await db
       .delete(emailRecipients)
@@ -237,7 +237,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async searchEmails(userId: number, query: string): Promise<EmailWithDetails[]> {
+  async searchEmails(userId: string, query: string): Promise<EmailWithDetails[]> {
     const result = await db
       .select({
         id: emails.id,
