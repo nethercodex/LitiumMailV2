@@ -74,8 +74,8 @@ export const emails = pgTable("emails", {
 // Email recipients table (for inbox management)
 export const emailRecipients = pgTable("email_recipients", {
   id: serial("id").primaryKey(),
-  emailId: serial("email_id").notNull(),
-  userId: serial("user_id").notNull(),
+  emailId: integer("email_id").notNull().references(() => emails.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
   isRead: boolean("is_read").default(false).notNull(),
   isDeleted: boolean("is_deleted").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),

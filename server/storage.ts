@@ -161,12 +161,6 @@ support@litium.space
 
   // Email operations
   async sendEmail(fromUserId: string, emailData: InsertEmail): Promise<Email> {
-    // Получаем информацию об отправителе
-    const sender = await this.getUser(fromUserId);
-    if (!sender) {
-      throw new Error("Sender not found");
-    }
-
     // Создаем запись в базе данных
     const [email] = await db
       .insert(emails)
@@ -179,35 +173,7 @@ support@litium.space
       })
       .returning();
 
-    // Отправляем через собственный SMTP сервер
-    try {
-      const { mailServer } = await import('./mailServer');
-      const fromAddress = `${sender.username}@litium.space`;
-      
-      // Отправляем письмо через SMTP сервер
-      await mailServer.sendEmail(
-        fromAddress,
-        emailData.toEmail,
-        emailData.subject,
-        emailData.body
-      );
-      
-      console.log(`Email sent via SMTP: ${fromAddress} -> ${emailData.toEmail}`);
-    } catch (smtpError) {
-      console.error("SMTP sending error:", smtpError);
-      // Продолжаем выполнение, письмо сохранено в базе
-    }
-
-    // Найти получателя по email адресу (только для внутренних пользователей)
-    const recipient = await this.getUserByEmail(emailData.toEmail);
-    if (recipient) {
-      await db.insert(emailRecipients).values({
-        emailId: email.id,
-        userId: recipient.id,
-        isRead: false,
-      });
-    }
-
+    console.log(`Email saved: ${fromUserId} -> ${emailData.toEmail}: ${emailData.subject}`);
     return email;
   }
 
