@@ -180,16 +180,16 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <CardContent>
                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="username">Имя пользователя</Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="username@litium.space"
-                      {...loginForm.register("email")}
+                      id="username"
+                      type="text"
+                      placeholder="username"
+                      {...loginForm.register("username")}
                       className="bg-background border-surface-lighter"
                     />
-                    {loginForm.formState.errors.email && (
-                      <p className="text-sm text-red-400">{loginForm.formState.errors.email.message}</p>
+                    {loginForm.formState.errors.username && (
+                      <p className="text-sm text-red-400">{loginForm.formState.errors.username.message}</p>
                     )}
                   </div>
 
