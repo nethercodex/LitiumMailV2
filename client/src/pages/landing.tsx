@@ -1,14 +1,14 @@
+import { useState } from "react";
 import { Mail, Shield, Zap, Smartphone, Lock, Key, Server, EyeOff, ArchiveRestore, Check, Plus, Search, Palette, Inbox, Calendar, Users, Bot, Layers, IdCard, MessageSquareLock, Twitter, Github, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import AuthModal from "@/components/auth-modal";
 
 export default function Landing() {
-  const handleLogin = () => {
-    window.location.href = "/api/login";
-  };
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  const handleSignup = () => {
-    window.location.href = "/api/login";
+  const handleAuthClick = () => {
+    setIsAuthModalOpen(true);
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -62,13 +62,13 @@ export default function Landing() {
               <Button 
                 variant="ghost" 
                 className="hidden sm:flex text-text-muted hover:text-white btn-hover-scale"
-                onClick={handleLogin}
+                onClick={handleAuthClick}
               >
                 Войти
               </Button>
               <Button 
                 className="bg-primary text-dark font-medium hover:bg-primary/80 btn-hover-lift glow-primary"
-                onClick={handleSignup}
+                onClick={handleAuthClick}
               >
                 Создать почту
               </Button>
@@ -107,7 +107,7 @@ export default function Landing() {
             <Button 
               size="lg"
               className="w-full sm:w-auto px-8 py-4 bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary shadow-lg shadow-primary/25"
-              onClick={handleSignup}
+              onClick={handleAuthClick}
             >
               <Layers className="mr-2 h-4 w-4" />
               Начать бесплатно
