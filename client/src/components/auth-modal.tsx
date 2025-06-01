@@ -340,9 +340,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </Label>
                         <Input
                           id="username"
-                          placeholder="username"
+                          placeholder="support (только английские буквы и цифры, до 20 символов)"
                           {...registerForm.register("username")}
                           className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
+                          maxLength={20}
                         />
                         <div className="flex items-center gap-2 text-xs text-white/60 bg-black/30 p-2 rounded-lg border border-[#b9ff6a]/20">
                           <Mail className="w-3 h-3 text-[#b9ff6a]" />
@@ -367,11 +368,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </Label>
                         <Input
                           id="email"
-                          type="text"
-                          placeholder="username (только английские буквы и цифры, до 20 символов)"
+                          type="email"
+                          placeholder="example@gmail.com (Gmail, Mail.ru, iCloud, VK, Yandex, Outlook)"
                           {...registerForm.register("email")}
                           className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
-                          maxLength={20}
                         />
                         {registerForm.formState.errors.email && (
                           <p className="text-sm text-red-400 flex items-center gap-2">

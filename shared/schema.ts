@@ -101,11 +101,17 @@ export const insertEmailRecipientSchema = createInsertSchema(emailRecipients).pi
 
 // Auth schemas
 export const registerSchema = z.object({
-  username: z.string().min(3, "Имя пользователя должно содержать минимум 3 символа").max(50, "Слишком длинное имя пользователя"),
-  email: z.string()
-    .min(1, "Введите email")
-    .max(20, "Email должен быть не длиннее 20 символов")
+  username: z.string()
+    .min(3, "Имя пользователя должно содержать минимум 3 символа")
+    .max(20, "Имя пользователя должно быть не длиннее 20 символов")
     .regex(/^[a-zA-Z0-9]+$/, "Только английские буквы и цифры"),
+  email: z.string()
+    .email("Введите корректный email")
+    .refine((email) => {
+      const allowedDomains = ['gmail.com', 'mail.ru', 'icloud.com', 'vk.com', 'yandex.ru', 'outlook.com'];
+      const domain = email.split('@')[1];
+      return allowedDomains.includes(domain);
+    }, "Разрешены только email от провайдеров: Gmail, Mail.ru, iCloud, VK, Yandex, Outlook"),
   password: z.string().min(6, "Пароль должен содержать минимум 6 символов"),
   firstName: z.string().min(1, "Введите имя").max(100),
   lastName: z.string().min(1, "Введите фамилию").max(100),
