@@ -227,6 +227,124 @@ export default function SystemInfo() {
         <h1 className="text-2xl font-bold text-white">Информация о панели</h1>
       </div>
 
+      {/* Обновления системы - в самом верху */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Download className="w-5 h-5 text-[#b9ff6a]" />
+            Обновления системы
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Текущая версия */}
+            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div>
+                <div className="font-medium text-white">Текущая версия</div>
+                <div className="text-sm text-gray-400">{systemInfo?.version || "1.2.0"}</div>
+              </div>
+              <Badge variant="outline" className="text-[#b9ff6a] border-[#b9ff6a]">
+                Установлена
+              </Badge>
+            </div>
+
+            {/* Кнопка проверки обновлений */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleCheckUpdates}
+                disabled={isCheckingUpdates || isInstalling}
+                className="bg-[#b9ff6a] text-black hover:bg-[#a8e85a] flex-1"
+              >
+                {isCheckingUpdates ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Проверка...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Проверить наличие обновлений
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Информация об обновлении */}
+            {updateInfo && (
+              <div className="space-y-3">
+                {updateInfo.updateAvailable ? (
+                  <div className="p-4 bg-green-900/20 border border-green-700 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-green-400">
+                        Доступно обновление
+                      </div>
+                      <Badge className="bg-green-600 text-white">
+                        v{updateInfo.latestVersion}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-300 mb-3">
+                      Опубликовано: {new Date(updateInfo.publishedAt).toLocaleDateString('ru-RU')}
+                    </div>
+                    {updateInfo.releaseNotes && (
+                      <div className="text-xs text-gray-400 mb-3 bg-gray-800/50 p-2 rounded border border-gray-700">
+                        {updateInfo.releaseNotes}
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleInstallUpdate}
+                      disabled={isInstalling}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {isInstalling ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Установка...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Установить обновление
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+                    <div className="flex items-center gap-2 text-green-400">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Система обновлена</span>
+                    </div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      У вас установлена последняя версия
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Анимация установки */}
+            {isInstalling && (
+              <div className="p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-blue-400">Установка обновления</span>
+                    <span className="text-sm text-gray-400">{Math.round(installProgress)}%</span>
+                  </div>
+                  <Progress 
+                    value={installProgress} 
+                    className="w-full"
+                  />
+                  <div className="text-sm text-gray-300 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
+                    {currentStep}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Основная информация */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="bg-gray-900/50 border-gray-800">
@@ -399,123 +517,7 @@ export default function SystemInfo() {
         </CardContent>
       </Card>
 
-      {/* Обновления системы */}
-      <Card className="bg-gray-900/50 border-gray-800">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-            <Download className="w-5 h-5 text-[#b9ff6a]" />
-            Обновления системы
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Текущая версия */}
-            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
-              <div>
-                <div className="font-medium text-white">Текущая версия</div>
-                <div className="text-sm text-gray-400">{systemInfo?.version || "1.2.0"}</div>
-              </div>
-              <Badge variant="outline" className="text-[#b9ff6a] border-[#b9ff6a]">
-                Установлена
-              </Badge>
-            </div>
 
-            {/* Кнопка проверки обновлений */}
-            <div className="flex gap-3">
-              <Button
-                onClick={handleCheckUpdates}
-                disabled={isCheckingUpdates || isInstalling}
-                className="bg-[#b9ff6a] text-black hover:bg-[#a8e85a] flex-1"
-              >
-                {isCheckingUpdates ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Проверка...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Проверить наличие обновлений
-                  </>
-                )}
-              </Button>
-            </div>
-
-            {/* Информация об обновлении */}
-            {updateInfo && (
-              <div className="space-y-3">
-                {updateInfo.updateAvailable ? (
-                  <div className="p-4 bg-green-900/20 border border-green-700 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium text-green-400">
-                        Доступно обновление
-                      </div>
-                      <Badge className="bg-green-600 text-white">
-                        v{updateInfo.latestVersion}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-gray-300 mb-3">
-                      Опубликовано: {new Date(updateInfo.publishedAt).toLocaleDateString('ru-RU')}
-                    </div>
-                    {updateInfo.releaseNotes && (
-                      <div className="text-xs text-gray-400 mb-3 bg-gray-800/50 p-2 rounded border border-gray-700">
-                        {updateInfo.releaseNotes}
-                      </div>
-                    )}
-                    <Button
-                      onClick={handleInstallUpdate}
-                      disabled={isInstalling}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      {isInstalling ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                          Установка...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="w-4 h-4 mr-2" />
-                          Установить обновление
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
-                    <div className="flex items-center gap-2 text-green-400">
-                      <CheckCircle className="w-5 h-5" />
-                      <span className="font-medium">Система обновлена</span>
-                    </div>
-                    <div className="text-sm text-gray-400 mt-1">
-                      У вас установлена последняя версия
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Анимация установки */}
-            {isInstalling && (
-              <div className="p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-blue-400">Установка обновления</span>
-                    <span className="text-sm text-gray-400">{Math.round(installProgress)}%</span>
-                  </div>
-                  <Progress 
-                    value={installProgress} 
-                    className="w-full"
-                  />
-                  <div className="text-sm text-gray-300 flex items-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
-                    {currentStep}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Системные возможности */}
       <Card className="bg-gray-900/50 border-gray-800">
