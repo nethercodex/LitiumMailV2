@@ -11,8 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "wouter";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getPlanDisplayName, PLANS } from "@shared/plans";
 
@@ -36,9 +35,15 @@ export default function Admin() {
   });
 
   // Update user mutation
+  const queryClient = useQueryClient();
+
   const updateUserMutation = useMutation({
     mutationFn: async (userData: any) => {
-      await apiRequest("PATCH", `/api/admin/users/${userData.id}`, userData);
+      await apiRequest(`/api/admin/users/${userData.id}`, {
+        method: "PATCH", 
+        body: JSON.stringify(userData),
+        headers: { 'Content-Type': 'application/json' }
+      });
     },
     onSuccess: () => {
       toast({
