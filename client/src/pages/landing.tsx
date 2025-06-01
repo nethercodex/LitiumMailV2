@@ -509,7 +509,7 @@ export default function Landing() {
                 <Button 
                   variant="outline" 
                   className="w-full border-surface-lighter hover:bg-surface btn-hover-scale glow-subtle"
-                  onClick={handleSignup}
+                  onClick={handleAuthClick}
                 >
                   Начать бесплатно
                 </Button>
@@ -579,7 +579,7 @@ export default function Landing() {
                 
                 <Button 
                   className="w-full bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary shadow-xl shadow-primary/25"
-                  onClick={handleSignup}
+                  onClick={handleAuthClick}
                 >
                   <Zap className="mr-2 h-5 w-5" />
                   Выбрать план
@@ -670,7 +670,7 @@ export default function Landing() {
                 <Button 
                   size="lg"
                   className="w-full sm:w-auto px-8 py-4 bg-primary text-dark font-semibold hover:bg-primary/80 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-primary/25"
-                  onClick={handleSignup}
+                  onClick={handleAuthClick}
                 >
                   <Mail className="mr-2 h-4 w-4" />
                   Создать аккаунт
@@ -775,6 +775,11 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </div>
   );
 }
