@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle } from "lucide-react";
 import SystemInfo from "./system-info";
 import Monitoring from "./monitoring";
+import DatabaseAdmin from "./database";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -373,6 +374,9 @@ export default function Admin() {
       
       case 'monitoring':
         return <Monitoring />;
+      
+      case 'database':
+        return <DatabaseAdmin />;
       
       case 'system-info':
         return <SystemInfo />;
