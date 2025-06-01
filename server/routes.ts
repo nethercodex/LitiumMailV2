@@ -532,12 +532,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email routes
   app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {
+      console.log("Email send request:", { userId: req.user.id, body: req.body });
       const emailData = insertEmailSchema.parse(req.body);
+      console.log("Parsed email data:", emailData);
       const email = await storage.sendEmail(req.user.id, emailData);
+      console.log("Email saved successfully:", email);
       res.json(email);
     } catch (error) {
       console.error("Send email error:", error);
-      res.status(500).json({ message: "Failed to send email" });
+      res.status(500).json({ message: "Ошибка отправки письма" });
     }
   });
 
