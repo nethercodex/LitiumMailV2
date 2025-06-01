@@ -37,7 +37,7 @@ export default function Admin() {
   // Update user mutation
   const updateUserMutation = useMutation({
     mutationFn: async (userData: any) => {
-      await apiRequest(`/api/admin/users/${userData.id}`, "PATCH", userData);
+      await apiRequest("PATCH", `/api/admin/users/${userData.id}`, userData);
     },
     onSuccess: () => {
       toast({
