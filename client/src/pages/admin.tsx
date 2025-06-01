@@ -442,92 +442,165 @@ export default function Admin() {
 
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-[#b9ff6a]">Редактировать пользователя</DialogTitle>
+        <DialogContent className="bg-black border-[#b9ff6a]/20 text-white max-w-lg shadow-2xl">
+          <DialogHeader className="space-y-3 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center">
+                <UserCog className="w-5 h-5 text-[#b9ff6a]" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-semibold text-[#b9ff6a]">
+                  Редактировать пользователя
+                </DialogTitle>
+                <p className="text-sm text-gray-400 mt-1">
+                  Изменение данных пользователя {editingUser?.username}
+                </p>
+              </div>
+            </div>
           </DialogHeader>
+          
           {editingUser && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-gray-300">Имя пользователя</Label>
-                <Input
-                  id="username"
-                  value={editingUser.username}
-                  onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-300">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={editingUser.email}
-                  onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                />
+            <div className="space-y-6">
+              {/* Basic Information Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700 pb-2">
+                  Основная информация
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username" className="text-sm font-medium text-gray-300">
+                      Имя пользователя
+                    </Label>
+                    <Input
+                      id="username"
+                      value={editingUser.username}
+                      onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
+                      className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] focus:ring-[#b9ff6a]/20 transition-colors"
+                      placeholder="Введите имя пользователя"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-300">
+                      Email адрес
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={editingUser.email}
+                      onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                      className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] focus:ring-[#b9ff6a]/20 transition-colors"
+                      placeholder="email@example.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-300">
+                      Имя
+                    </Label>
+                    <Input
+                      id="firstName"
+                      value={editingUser.firstName}
+                      onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
+                      className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] focus:ring-[#b9ff6a]/20 transition-colors"
+                      placeholder="Введите имя"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-300">
+                      Фамилия
+                    </Label>
+                    <Input
+                      id="lastName"
+                      value={editingUser.lastName}
+                      onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
+                      className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] focus:ring-[#b9ff6a]/20 transition-colors"
+                      placeholder="Введите фамилию"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-gray-300">Имя</Label>
-                <Input
-                  id="firstName"
-                  value={editingUser.firstName}
-                  onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                />
+              {/* Account Settings Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-300 uppercase tracking-wide border-b border-gray-700 pb-2">
+                  Настройки аккаунта
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="plan" className="text-sm font-medium text-gray-300">
+                      Тарифный план
+                    </Label>
+                    <Select 
+                      value={editingUser.plan} 
+                      onValueChange={(value) => setEditingUser({...editingUser, plan: value})}
+                    >
+                      <SelectTrigger className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a] focus:ring-[#b9ff6a]/20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-900 border-gray-700">
+                        <SelectItem value="free" className="text-white hover:bg-gray-800">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                            Free Plan
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="premium" className="text-white hover:bg-gray-800">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-[#b9ff6a] rounded-full"></div>
+                            Premium Plan
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-300">
+                      Статус аккаунта
+                    </Label>
+                    <div className="flex items-center space-x-3 p-3 bg-gray-900/50 border border-gray-700 rounded-md">
+                      <Switch
+                        id="isActive"
+                        checked={editingUser.isActive}
+                        onCheckedChange={(checked) => setEditingUser({...editingUser, isActive: checked})}
+                        className="data-[state=checked]:bg-[#b9ff6a]"
+                      />
+                      <Label htmlFor="isActive" className="text-sm text-gray-300 cursor-pointer">
+                        {editingUser.isActive ? 'Активный' : 'Заблокированный'}
+                      </Label>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-gray-300">Фамилия</Label>
-                <Input
-                  id="lastName"
-                  value={editingUser.lastName}
-                  onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="plan" className="text-gray-300">План</Label>
-                <Select 
-                  value={editingUser.plan} 
-                  onValueChange={(value) => setEditingUser({...editingUser, plan: value})}
-                >
-                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-600">
-                    <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isActive"
-                  checked={editingUser.isActive}
-                  onCheckedChange={(checked) => setEditingUser({...editingUser, isActive: checked})}
-                />
-                <Label htmlFor="isActive" className="text-gray-300">Активный аккаунт</Label>
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-4">
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-700">
                 <Button
                   variant="outline"
                   onClick={() => setIsEditDialogOpen(false)}
-                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:border-gray-500 px-6"
                 >
                   Отмена
                 </Button>
                 <Button
                   onClick={handleSaveUser}
                   disabled={updateUserMutation.isPending}
-                  className="bg-[#b9ff6a] hover:bg-[#a0e055] text-black"
+                  className="bg-[#b9ff6a] hover:bg-[#a0e055] text-black font-medium px-6 shadow-lg shadow-[#b9ff6a]/20"
                 >
-                  {updateUserMutation.isPending ? 'Сохранение...' : 'Сохранить'}
+                  {updateUserMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      Сохранение...
+                    </div>
+                  ) : (
+                    'Сохранить изменения'
+                  )}
                 </Button>
               </div>
             </div>
