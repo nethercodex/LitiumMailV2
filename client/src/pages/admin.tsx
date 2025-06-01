@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3, Globe, AlertTriangle, CheckCircle } from "lucide-react";
 import SystemInfo from "./system-info";
+import Monitoring from "./monitoring";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -369,6 +370,9 @@ export default function Admin() {
       
       case 'mail-server':
         return <MailServerSettings />;
+      
+      case 'monitoring':
+        return <Monitoring />;
       
       case 'system-info':
         return <SystemInfo />;
