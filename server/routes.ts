@@ -687,13 +687,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const tablesQuery = `
         SELECT 
           schemaname,
-          tablename as table_name,
+          relname as table_name,
           n_tup_ins + n_tup_upd + n_tup_del as total_operations,
-          pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size,
+          pg_size_pretty(pg_total_relation_size(schemaname||'.'||relname)) as size,
           last_analyze,
           last_autoanalyze
         FROM pg_stat_user_tables 
-        ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
+        ORDER BY pg_total_relation_size(schemaname||'.'||relname) DESC
       `;
       
       const tablesResult = await db.execute(tablesQuery);
