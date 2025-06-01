@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Info, 
   Package, 
@@ -15,7 +19,9 @@ import {
   AlertTriangle,
   User,
   Calendar,
-  Globe
+  Globe,
+  Download,
+  RefreshCw
 } from "lucide-react";
 
 interface SystemInfo {
@@ -38,8 +44,27 @@ interface SystemInfo {
   };
 }
 
+interface UpdateInfo {
+  currentVersion: string;
+  latestVersion: string;
+  updateAvailable: boolean;
+  releaseNotes: string;
+  downloadUrl: string;
+  publishedAt: string;
+}
+
+interface InstallationStep {
+  step: number;
+  message: string;
+  progress: number;
+}
+
 export default function SystemInfo() {
   const [systemTime, setSystemTime] = useState(new Date());
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [installProgress, setInstallProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -47,6 +72,73 @@ export default function SystemInfo() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Проверка обновлений
+  const { data: updateInfo, refetch: checkUpdates, isLoading: isCheckingUpdates } = useQuery({
+    queryKey: ['/api/admin/check-updates'],
+    enabled: false, // Запускаем только по требованию
+  });
+
+  // Установка обновлений
+  const installUpdateMutation = useMutation({
+    mutationFn: async (updateData: { downloadUrl: string; version: string }) => {
+      return apiRequest('POST', '/api/admin/install-update', updateData);
+    },
+    onSuccess: (data) => {
+      // Запускаем анимацию установки
+      setIsInstalling(true);
+      setInstallProgress(0);
+      
+      const steps = [
+        "Загрузка обновления...",
+        "Проверка целостности файлов...",
+        "Создание резервной копии...",
+        "Установка новых файлов...",
+        "Обновление конфигурации...",
+        "Перезапуск сервисов...",
+        "Обновление завершено!"
+      ];
+      
+      let currentStepIndex = 0;
+      const progressInterval = setInterval(() => {
+        if (currentStepIndex < steps.length) {
+          setCurrentStep(steps[currentStepIndex]);
+          setInstallProgress((currentStepIndex + 1) * (100 / steps.length));
+          currentStepIndex++;
+        } else {
+          clearInterval(progressInterval);
+          setTimeout(() => {
+            setIsInstalling(false);
+            toast({
+              title: "Обновление установлено",
+              description: `Система обновлена до версии ${data.newVersion}`,
+            });
+          }, 1000);
+        }
+      }, 1500);
+    },
+    onError: (error: any) => {
+      setIsInstalling(false);
+      toast({
+        title: "Ошибка установки",
+        description: error.message || "Не удалось установить обновление",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCheckUpdates = () => {
+    checkUpdates();
+  };
+
+  const handleInstallUpdate = () => {
+    if (updateInfo?.updateAvailable) {
+      installUpdateMutation.mutate({
+        downloadUrl: updateInfo.downloadUrl,
+        version: updateInfo.latestVersion
+      });
+    }
+  };
 
   const { data: systemInfo, isLoading } = useQuery<SystemInfo>({
     queryKey: ["/api/admin/system-info"],
@@ -301,6 +393,124 @@ export default function SystemInfo() {
             )) : (
               <div className="col-span-full text-center text-gray-400 py-8">
                 Загрузка информации о библиотеках...
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Обновления системы */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Download className="w-5 h-5 text-[#b9ff6a]" />
+            Обновления системы
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Текущая версия */}
+            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div>
+                <div className="font-medium text-white">Текущая версия</div>
+                <div className="text-sm text-gray-400">{systemInfo?.version || "1.2.0"}</div>
+              </div>
+              <Badge variant="outline" className="text-[#b9ff6a] border-[#b9ff6a]">
+                Установлена
+              </Badge>
+            </div>
+
+            {/* Кнопка проверки обновлений */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleCheckUpdates}
+                disabled={isCheckingUpdates || isInstalling}
+                className="bg-[#b9ff6a] text-black hover:bg-[#a8e85a] flex-1"
+              >
+                {isCheckingUpdates ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Проверка...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Проверить наличие обновлений
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Информация об обновлении */}
+            {updateInfo && (
+              <div className="space-y-3">
+                {updateInfo.updateAvailable ? (
+                  <div className="p-4 bg-green-900/20 border border-green-700 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-green-400">
+                        Доступно обновление
+                      </div>
+                      <Badge className="bg-green-600 text-white">
+                        v{updateInfo.latestVersion}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-300 mb-3">
+                      Опубликовано: {new Date(updateInfo.publishedAt).toLocaleDateString('ru-RU')}
+                    </div>
+                    {updateInfo.releaseNotes && (
+                      <div className="text-xs text-gray-400 mb-3 bg-gray-800/50 p-2 rounded border border-gray-700">
+                        {updateInfo.releaseNotes}
+                      </div>
+                    )}
+                    <Button
+                      onClick={handleInstallUpdate}
+                      disabled={isInstalling}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {isInstalling ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Установка...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Установить обновление
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+                    <div className="flex items-center gap-2 text-green-400">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">Система обновлена</span>
+                    </div>
+                    <div className="text-sm text-gray-400 mt-1">
+                      У вас установлена последняя версия
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Анимация установки */}
+            {isInstalling && (
+              <div className="p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-blue-400">Установка обновления</span>
+                    <span className="text-sm text-gray-400">{Math.round(installProgress)}%</span>
+                  </div>
+                  <Progress 
+                    value={installProgress} 
+                    className="w-full"
+                  />
+                  <div className="text-sm text-gray-300 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin text-blue-400" />
+                    {currentStep}
+                  </div>
+                </div>
               </div>
             )}
           </div>

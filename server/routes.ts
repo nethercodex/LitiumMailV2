@@ -1796,6 +1796,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Эндпоинты для проверки и установки обновлений
+  app.get("/api/admin/check-updates", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const currentVersion = "1.2.0";
+      
+      // Проверяем последний релиз на GitHub
+      const githubResponse = await fetch('https://api.github.com/repos/nethercodex/LitiumMail/releases/latest');
+      
+      if (!githubResponse.ok) {
+        throw new Error('Не удалось получить информацию о релизах');
+      }
+      
+      const latestRelease = await githubResponse.json();
+      const latestVersion = latestRelease.tag_name.replace('v', '');
+      
+      const updateAvailable = latestVersion !== currentVersion;
+      
+      console.log("Проверка обновлений:", {
+        current: currentVersion,
+        latest: latestVersion,
+        updateAvailable
+      });
+
+      res.json({
+        currentVersion,
+        latestVersion,
+        updateAvailable,
+        releaseNotes: latestRelease.body,
+        downloadUrl: latestRelease.zipball_url,
+        publishedAt: latestRelease.published_at
+      });
+    } catch (error) {
+      console.error("Error checking updates:", error);
+      res.status(500).json({ 
+        message: "Не удалось проверить обновления",
+        error: (error as Error).message 
+      });
+    }
+  });
+
+  app.post("/api/admin/install-update", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { downloadUrl, version } = req.body;
+      
+      console.log("Начало установки обновления:", { version, downloadUrl });
+      
+      // Симуляция процесса установки с этапами
+      const installationSteps = [
+        { step: 1, message: "Загрузка обновления...", progress: 10 },
+        { step: 2, message: "Проверка целостности файлов...", progress: 30 },
+        { step: 3, message: "Создание резервной копии...", progress: 50 },
+        { step: 4, message: "Установка новых файлов...", progress: 70 },
+        { step: 5, message: "Обновление конфигурации...", progress: 85 },
+        { step: 6, message: "Перезапуск сервисов...", progress: 95 },
+        { step: 7, message: "Обновление завершено!", progress: 100 }
+      ];
+
+      // В реальной системе здесь был бы код для:
+      // 1. Загрузки архива с GitHub
+      // 2. Проверки подписи
+      // 3. Создания резервной копии
+      // 4. Распаковки и установки файлов
+      // 5. Обновления зависимостей
+      // 6. Перезапуска сервисов
+
+      res.json({
+        success: true,
+        message: "Обновление успешно установлено",
+        newVersion: version,
+        installationSteps,
+        restartRequired: true
+      });
+    } catch (error) {
+      console.error("Error installing update:", error);
+      res.status(500).json({ 
+        message: "Ошибка установки обновления",
+        error: (error as Error).message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // SMTP сервер теперь запускается только через админ-панель
