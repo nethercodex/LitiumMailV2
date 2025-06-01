@@ -129,19 +129,25 @@ export default function Home() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
-                <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
-                  <User className="w-4 h-4 text-[#b9ff6a]" />
-                  <span>Профиль</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
-                  <Shield className="w-4 h-4 text-[#b9ff6a]" />
-                  <span>Безопасность</span>
-                </DropdownMenuItem>
-                {user?.id === 'admin' && (
+                <Link href="/profile">
                   <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
-                    <Settings className="w-4 h-4 text-[#b9ff6a]" />
-                    <span>Админ-панель</span>
+                    <User className="w-4 h-4 text-[#b9ff6a]" />
+                    <span>Профиль</span>
                   </DropdownMenuItem>
+                </Link>
+                <Link href="/security">
+                  <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
+                    <Shield className="w-4 h-4 text-[#b9ff6a]" />
+                    <span>Безопасность</span>
+                  </DropdownMenuItem>
+                </Link>
+                {user?.id === 'admin' && (
+                  <Link href="/admin">
+                    <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
+                      <Settings className="w-4 h-4 text-[#b9ff6a]" />
+                      <span>Админ-панель</span>
+                    </DropdownMenuItem>
+                  </Link>
                 )}
                 <DropdownMenuSeparator className="bg-[#b9ff6a]/20 my-1" />
                 <DropdownMenuItem 
