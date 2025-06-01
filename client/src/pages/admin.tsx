@@ -124,7 +124,6 @@ export default function Admin() {
   const sidebarItems = [
     { id: 'dashboard', label: 'Панель управления', icon: BarChart3 },
     { id: 'users', label: 'Пользователи', icon: Users },
-    { id: 'emails', label: 'Почтовая система', icon: Mail },
     { id: 'mail-server', label: 'Настройки сервера', icon: Server },
     { id: 'settings', label: 'Настройки', icon: Settings },
     { id: 'database', label: 'База данных', icon: Database },
@@ -355,21 +354,7 @@ export default function Admin() {
           </div>
         );
       
-      case 'emails':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Почтовая система</h2>
-              <p className="text-gray-400">Управление почтовыми сервисами и настройками</p>
-            </div>
-            <Card className="bg-black/40 border-gray-800">
-              <CardContent className="p-6">
-                <p className="text-gray-400">Настройки почтовой системы будут добавлены в следующих обновлениях.</p>
-              </CardContent>
-            </Card>
-          </div>
-        );
-      
+
       case 'mail-server':
         return <MailServerSettings />;
       
