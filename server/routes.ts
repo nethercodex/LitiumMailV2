@@ -1,19 +1,88 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import cookieParser from "cookie-parser";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertEmailSchema } from "@shared/schema";
-import { z } from "zod";
+import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
+
+// Простая сессия для пользователей
+const userSessions = new Map<string, any>();
+
+// Middleware для проверки аутентификации
+const requireAuth = async (req: any, res: any, next: any) => {
+  try {
+    const sessionId = req.cookies?.sessionId;
+    const session = userSessions.get(sessionId);
+    
+    if (!session) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    req.user = session.user;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Добавляем cookie parser
+  app.use(cookieParser());
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  // Custom Auth routes
+  app.post('/api/register', async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      const userData = registerSchema.parse(req.body);
+      
+      // Проверяем, что пользователь не существует
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Пользователь уже существует" });
+      }
+
+      const existingEmail = await storage.getUserByEmail(userData.email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email уже используется" });
+      }
+
+      // Создаем пользователя
+      const user = await storage.createUser(userData);
+      
+      // Создаем сессию
+      const sessionId = Math.random().toString(36);
+      userSessions.set(sessionId, { userId: user.id, user });
+      
+      res.cookie('sessionId', sessionId, { httpOnly: true });
+      res.json({ user, message: "Регистрация успешна" });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: "Ошибка регистрации" });
+    }
+  });
+
+  app.post('/api/login', async (req, res) => {
+    try {
+      const loginData = loginSchema.parse(req.body);
+      
+      const user = await storage.validateUser(loginData.username, loginData.password);
+      if (!user) {
+        return res.status(401).json({ message: "Неверные данные входа" });
+      }
+
+      // Создаем сессию
+      const sessionId = Math.random().toString(36);
+      userSessions.set(sessionId, { userId: user.id, user });
+      
+      res.cookie('sessionId', sessionId, { httpOnly: true });
+      res.json({ user, message: "Вход выполнен успешно" });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(400).json({ message: "Ошибка входа" });
+    }
+  });
+
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -21,118 +90,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/logout', (req, res) => {
+    const sessionId = req.cookies?.sessionId;
+    if (sessionId) {
+      userSessions.delete(sessionId);
+    }
+    res.clearCookie('sessionId');
+    res.json({ message: "Выход выполнен успешно" });
+  });
+
   // Email routes
-  app.post('/api/emails/send', isAuthenticated, async (req: any, res) => {
+  app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const emailData = insertEmailSchema.parse(req.body);
-      
-      const email = await storage.sendEmail(userId, emailData);
+      const email = await storage.sendEmail(req.user.id, emailData);
       res.json(email);
     } catch (error) {
-      console.error("Error sending email:", error);
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid email data", errors: error.errors });
-      } else {
-        res.status(500).json({ message: "Failed to send email" });
-      }
+      console.error("Send email error:", error);
+      res.status(500).json({ message: "Failed to send email" });
     }
   });
 
-  app.get('/api/emails/inbox', isAuthenticated, async (req: any, res) => {
+  app.get("/api/emails/inbox", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const emails = await storage.getInboxEmails(userId);
+      const emails = await storage.getInboxEmails(req.user.id);
       res.json(emails);
     } catch (error) {
-      console.error("Error fetching inbox:", error);
-      res.status(500).json({ message: "Failed to fetch inbox" });
+      console.error("Get inbox error:", error);
+      res.status(500).json({ message: "Failed to get inbox" });
     }
   });
 
-  app.get('/api/emails/sent', isAuthenticated, async (req: any, res) => {
+  app.get("/api/emails/sent", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const emails = await storage.getSentEmails(userId);
+      const emails = await storage.getSentEmails(req.user.id);
       res.json(emails);
     } catch (error) {
-      console.error("Error fetching sent emails:", error);
-      res.status(500).json({ message: "Failed to fetch sent emails" });
+      console.error("Get sent emails error:", error);
+      res.status(500).json({ message: "Failed to get sent emails" });
     }
   });
 
-  app.get('/api/emails/:id', isAuthenticated, async (req: any, res) => {
+  app.get("/api/emails/:id", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const emailId = parseInt(req.params.id);
-      
-      if (isNaN(emailId)) {
-        return res.status(400).json({ message: "Invalid email ID" });
-      }
-
-      const email = await storage.getEmailById(emailId, userId);
-      
+      const email = await storage.getEmailById(emailId, req.user.id);
       if (!email) {
         return res.status(404).json({ message: "Email not found" });
       }
-
-      // Mark as read if user is recipient
-      await storage.markEmailAsRead(emailId, userId);
-
       res.json(email);
     } catch (error) {
-      console.error("Error fetching email:", error);
-      res.status(500).json({ message: "Failed to fetch email" });
+      console.error("Get email error:", error);
+      res.status(500).json({ message: "Failed to get email" });
     }
   });
 
-  app.patch('/api/emails/:id/read', isAuthenticated, async (req: any, res) => {
+  app.put("/api/emails/:id/read", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const emailId = parseInt(req.params.id);
-      
-      if (isNaN(emailId)) {
-        return res.status(400).json({ message: "Invalid email ID" });
-      }
-
-      await storage.markEmailAsRead(emailId, userId);
-      res.json({ success: true });
+      await storage.markEmailAsRead(emailId, req.user.id);
+      res.json({ message: "Email marked as read" });
     } catch (error) {
-      console.error("Error marking email as read:", error);
-      res.status(500).json({ message: "Failed to mark email as read" });
+      console.error("Mark read error:", error);
+      res.status(500).json({ message: "Failed to mark as read" });
     }
   });
 
-  app.delete('/api/emails/:id', isAuthenticated, async (req: any, res) => {
+  app.delete("/api/emails/:id", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const emailId = parseInt(req.params.id);
-      
-      if (isNaN(emailId)) {
-        return res.status(400).json({ message: "Invalid email ID" });
-      }
-
-      await storage.deleteEmail(emailId, userId);
-      res.json({ success: true });
+      await storage.deleteEmail(emailId, req.user.id);
+      res.json({ message: "Email deleted" });
     } catch (error) {
-      console.error("Error deleting email:", error);
+      console.error("Delete email error:", error);
       res.status(500).json({ message: "Failed to delete email" });
     }
   });
 
-  app.get('/api/emails/search/:query', isAuthenticated, async (req: any, res) => {
+  app.get("/api/emails/search/:query", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
       const query = req.params.query;
-      
-      if (!query || query.trim().length === 0) {
-        return res.status(400).json({ message: "Search query is required" });
-      }
-
-      const emails = await storage.searchEmails(userId, query);
+      const emails = await storage.searchEmails(req.user.id, query);
       res.json(emails);
     } catch (error) {
-      console.error("Error searching emails:", error);
+      console.error("Search emails error:", error);
       res.status(500).json({ message: "Failed to search emails" });
     }
   });

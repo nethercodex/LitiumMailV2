@@ -38,17 +38,26 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const loginForm = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterData) => {
-      return await apiRequest("/api/auth/register", {
+      const response = await fetch("/api/register", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       });
+      
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Ошибка регистрации");
+      }
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -57,6 +66,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       onClose();
+      window.location.reload();
     },
     onError: (error: Error) => {
       toast({
@@ -69,10 +79,19 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginData) => {
-      return await apiRequest("/api/auth/login", {
+      const response = await fetch("/api/login", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       });
+      
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Ошибка входа");
+      }
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -81,6 +100,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       onClose();
+      window.location.reload();
     },
     onError: (error: Error) => {
       toast({
