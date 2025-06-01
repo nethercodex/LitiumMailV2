@@ -147,6 +147,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/admin/users/:userId", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { userId: targetUserId } = req.params;
+      const userData = req.body;
+
+      const updatedUser = await storage.updateUser(targetUserId, userData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
   // Email routes
   app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {

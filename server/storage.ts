@@ -35,6 +35,7 @@ export interface IStorage {
   
   // Admin methods
   getAllUsers(): Promise<User[]>;
+  updateUser(userId: string, userData: Partial<User>): Promise<User>;
   getUsersCount(): Promise<number>;
   getEmailsCount(): Promise<number>;
   getRecentUsersCount(): Promise<number>;
@@ -292,6 +293,18 @@ export class DatabaseStorage implements IStorage {
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     }).from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUser(userId: string, userData: Partial<User>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
   }
 
   async getUsersCount(): Promise<number> {
