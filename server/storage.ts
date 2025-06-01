@@ -178,6 +178,12 @@ support@litium.space
   }
 
   async getInboxEmails(userId: string): Promise<EmailWithDetails[]> {
+    // Получаем информацию о пользователе для определения его email адреса
+    const user = await this.getUser(userId);
+    if (!user) return [];
+
+    const userEmail = `${user.username}@litium.space`;
+
     const result = await db
       .select({
         id: emails.id,
@@ -186,6 +192,9 @@ support@litium.space
         subject: emails.subject,
         body: emails.body,
         sentAt: emails.sentAt,
+        createdAt: emails.createdAt,
+        updatedAt: emails.updatedAt,
+        isRead: emails.isRead,
         sender: {
           id: users.id,
           username: users.username,
@@ -193,17 +202,17 @@ support@litium.space
           password: users.password,
           firstName: users.firstName,
           lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
           plan: users.plan,
+          role: users.role,
           isActive: users.isActive,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },
-        isRead: emailRecipients.isRead,
       })
       .from(emails)
       .innerJoin(users, eq(emails.fromUserId, users.id))
-      .innerJoin(emailRecipients, eq(emails.id, emailRecipients.emailId))
-      .where(eq(emailRecipients.userId, userId))
+      .where(eq(emails.toEmail, userEmail))
       .orderBy(desc(emails.sentAt));
 
     return result.map(row => ({
