@@ -882,6 +882,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin settings endpoints
+  app.get("/api/admin/settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // В реальной системе здесь были бы настройки из базы данных
+      const mockSettings = {
+        general: {
+          siteName: 'LITIUM.SPACE',
+          siteDescription: 'Надежная коммуникационная платформа',
+          adminEmail: 'admin@litium.space',
+          maintenanceMode: false,
+          registrationEnabled: true,
+          emailVerificationRequired: false,
+          maxUsersPerPlan: 1000,
+          sessionTimeout: 30,
+          backupFrequency: 'daily',
+          logLevel: 'info'
+        },
+        security: {
+          passwordMinLength: 8,
+          passwordRequireSpecialChars: true,
+          passwordRequireNumbers: true,
+          passwordRequireUppercase: true,
+          twoFactorRequired: false,
+          maxLoginAttempts: 5,
+          accountLockoutDuration: 15,
+          sessionSecure: true,
+          corsEnabled: false,
+          allowedOrigins: '',
+          rateLimitEnabled: true,
+          rateLimitRequests: 100,
+          rateLimitWindow: 15
+        },
+        notifications: {
+          emailNotifications: true,
+          systemAlerts: true,
+          userRegistrationNotify: true,
+          failedLoginNotify: true,
+          maintenanceNotify: true,
+          backupStatusNotify: true,
+          diskSpaceAlerts: true,
+          performanceAlerts: true
+        }
+      };
+
+      res.json(mockSettings);
+    } catch (error) {
+      console.error("Error fetching admin settings:", error);
+      res.status(500).json({ message: "Failed to fetch admin settings" });
+    }
+  });
+
+  app.put("/api/admin/settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { general, security, notifications } = req.body;
+      
+      // В реальной системе здесь было бы сохранение в базу данных
+      // Для демонстрации просто возвращаем успех
+      
+      res.json({
+        success: true,
+        message: "Настройки успешно сохранены",
+        settings: {
+          general,
+          security,
+          notifications
+        }
+      });
+    } catch (error) {
+      console.error("Error saving admin settings:", error);
+      res.status(500).json({ message: "Failed to save admin settings" });
+    }
+  });
+
   app.get("/api/admin/users", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;

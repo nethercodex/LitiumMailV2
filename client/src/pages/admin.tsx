@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -381,6 +382,9 @@ export default function Admin() {
       case 'system-info':
         return <SystemInfo />;
       
+      case 'settings':
+        return <AdminSettings />;
+      
       default:
         return (
           <div className="space-y-6">
@@ -628,6 +632,543 @@ export default function Admin() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// Компонент настроек системы
+function AdminSettings() {
+  const { toast } = useToast();
+  const [generalSettings, setGeneralSettings] = useState({
+    siteName: 'LITIUM.SPACE',
+    siteDescription: 'Надежная коммуникационная платформа',
+    adminEmail: 'admin@litium.space',
+    maintenanceMode: false,
+    registrationEnabled: true,
+    emailVerificationRequired: false,
+    maxUsersPerPlan: 1000,
+    sessionTimeout: 30,
+    backupFrequency: 'daily',
+    logLevel: 'info'
+  });
+
+  const [securitySettings, setSecuritySettings] = useState({
+    passwordMinLength: 8,
+    passwordRequireSpecialChars: true,
+    passwordRequireNumbers: true,
+    passwordRequireUppercase: true,
+    twoFactorRequired: false,
+    maxLoginAttempts: 5,
+    accountLockoutDuration: 15,
+    sessionSecure: true,
+    corsEnabled: false,
+    allowedOrigins: '',
+    rateLimitEnabled: true,
+    rateLimitRequests: 100,
+    rateLimitWindow: 15
+  });
+
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    systemAlerts: true,
+    userRegistrationNotify: true,
+    failedLoginNotify: true,
+    maintenanceNotify: true,
+    backupStatusNotify: true,
+    diskSpaceAlerts: true,
+    performanceAlerts: true
+  });
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (settings: any) => {
+      return apiRequest('PUT', '/api/admin/settings', settings);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Настройки сохранены",
+        description: "Настройки системы успешно обновлены",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка сохранения",
+        description: error.message || "Не удалось сохранить настройки",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveSettings = () => {
+    saveSettingsMutation.mutate({
+      general: generalSettings,
+      security: securitySettings,
+      notifications: notificationSettings
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Заголовок */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Settings className="w-6 h-6 text-[#b9ff6a]" />
+          <h1 className="text-2xl font-bold text-white">Настройки системы</h1>
+        </div>
+        
+        <Button
+          onClick={handleSaveSettings}
+          disabled={saveSettingsMutation.isPending}
+          className="bg-[#b9ff6a] hover:bg-[#a0e055] text-black font-medium"
+        >
+          {saveSettingsMutation.isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+              Сохранение...
+            </div>
+          ) : (
+            'Сохранить изменения'
+          )}
+        </Button>
+      </div>
+
+      {/* Общие настройки */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Globe className="w-5 h-5 text-[#b9ff6a]" />
+            Общие настройки
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="siteName" className="text-gray-300">
+                Название сайта
+              </Label>
+              <Input
+                id="siteName"
+                value={generalSettings.siteName}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, siteName: e.target.value }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="adminEmail" className="text-gray-300">
+                Email администратора
+              </Label>
+              <Input
+                id="adminEmail"
+                type="email"
+                value={generalSettings.adminEmail}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, adminEmail: e.target.value }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="siteDescription" className="text-gray-300">
+              Описание сайта
+            </Label>
+            <Textarea
+              id="siteDescription"
+              value={generalSettings.siteDescription}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, siteDescription: e.target.value }))}
+              className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              rows={3}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="maxUsers" className="text-gray-300">
+                Максимум пользователей
+              </Label>
+              <Input
+                id="maxUsers"
+                type="number"
+                value={generalSettings.maxUsersPerPlan}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, maxUsersPerPlan: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="sessionTimeout" className="text-gray-300">
+                Таймаут сессии (мин)
+              </Label>
+              <Input
+                id="sessionTimeout"
+                type="number"
+                value={generalSettings.sessionTimeout}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="logLevel" className="text-gray-300">
+                Уровень логирования
+              </Label>
+              <select
+                value={generalSettings.logLevel}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, logLevel: e.target.value }))}
+                className="w-full px-3 py-2 bg-gray-900/50 border border-gray-700 rounded-md text-white focus:border-[#b9ff6a] focus:outline-none"
+              >
+                <option value="error">Error</option>
+                <option value="warn">Warning</option>
+                <option value="info">Info</option>
+                <option value="debug">Debug</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-6">
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="maintenanceMode"
+                checked={generalSettings.maintenanceMode}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="maintenanceMode" className="text-gray-300">
+                Режим обслуживания
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="registrationEnabled"
+                checked={generalSettings.registrationEnabled}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, registrationEnabled: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="registrationEnabled" className="text-gray-300">
+                Разрешить регистрацию
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="emailVerification"
+                checked={generalSettings.emailVerificationRequired}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, emailVerificationRequired: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="emailVerification" className="text-gray-300">
+                Проверка email
+              </Label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Настройки безопасности */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Shield className="w-5 h-5 text-[#b9ff6a]" />
+            Безопасность
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="passwordMinLength" className="text-gray-300">
+                Мин. длина пароля
+              </Label>
+              <Input
+                id="passwordMinLength"
+                type="number"
+                min="6"
+                max="32"
+                value={securitySettings.passwordMinLength}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, passwordMinLength: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="maxLoginAttempts" className="text-gray-300">
+                Макс. попыток входа
+              </Label>
+              <Input
+                id="maxLoginAttempts"
+                type="number"
+                min="3"
+                max="10"
+                value={securitySettings.maxLoginAttempts}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, maxLoginAttempts: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="lockoutDuration" className="text-gray-300">
+                Блокировка (мин)
+              </Label>
+              <Input
+                id="lockoutDuration"
+                type="number"
+                min="5"
+                max="60"
+                value={securitySettings.accountLockoutDuration}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, accountLockoutDuration: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="rateLimitRequests" className="text-gray-300">
+                Лимит запросов
+              </Label>
+              <Input
+                id="rateLimitRequests"
+                type="number"
+                min="10"
+                max="1000"
+                value={securitySettings.rateLimitRequests}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, rateLimitRequests: parseInt(e.target.value) }))}
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="passwordSpecialChars"
+                checked={securitySettings.passwordRequireSpecialChars}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, passwordRequireSpecialChars: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="passwordSpecialChars" className="text-gray-300 text-sm">
+                Спец. символы
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="passwordNumbers"
+                checked={securitySettings.passwordRequireNumbers}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, passwordRequireNumbers: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="passwordNumbers" className="text-gray-300 text-sm">
+                Цифры
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="passwordUppercase"
+                checked={securitySettings.passwordRequireUppercase}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, passwordRequireUppercase: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="passwordUppercase" className="text-gray-300 text-sm">
+                Заглавные буквы
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="twoFactor"
+                checked={securitySettings.twoFactorRequired}
+                onChange={(e) => setSecuritySettings(prev => ({ ...prev, twoFactorRequired: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="twoFactor" className="text-gray-300 text-sm">
+                2FA обязательно
+              </Label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="allowedOrigins" className="text-gray-300">
+              Разрешенные домены CORS (через запятую)
+            </Label>
+            <Input
+              id="allowedOrigins"
+              value={securitySettings.allowedOrigins}
+              onChange={(e) => setSecuritySettings(prev => ({ ...prev, allowedOrigins: e.target.value }))}
+              placeholder="https://example.com, https://app.example.com"
+              className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Настройки уведомлений */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-[#b9ff6a]" />
+            Уведомления
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="emailNotifications"
+                checked={notificationSettings.emailNotifications}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, emailNotifications: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="emailNotifications" className="text-gray-300">
+                Email уведомления
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="systemAlerts"
+                checked={notificationSettings.systemAlerts}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, systemAlerts: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="systemAlerts" className="text-gray-300">
+                Системные оповещения
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="userRegistration"
+                checked={notificationSettings.userRegistrationNotify}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, userRegistrationNotify: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="userRegistration" className="text-gray-300">
+                Новые пользователи
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="failedLogin"
+                checked={notificationSettings.failedLoginNotify}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, failedLoginNotify: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="failedLogin" className="text-gray-300">
+                Неудачные входы
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="maintenance"
+                checked={notificationSettings.maintenanceNotify}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, maintenanceNotify: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="maintenance" className="text-gray-300">
+                Обслуживание
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="backupStatus"
+                checked={notificationSettings.backupStatusNotify}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, backupStatusNotify: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="backupStatus" className="text-gray-300">
+                Резервные копии
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="diskSpace"
+                checked={notificationSettings.diskSpaceAlerts}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, diskSpaceAlerts: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="diskSpace" className="text-gray-300">
+                Место на диске
+              </Label>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="performance"
+                checked={notificationSettings.performanceAlerts}
+                onChange={(e) => setNotificationSettings(prev => ({ ...prev, performanceAlerts: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-600 bg-gray-900/50 text-[#b9ff6a] focus:ring-[#b9ff6a]"
+              />
+              <Label htmlFor="performance" className="text-gray-300">
+                Производительность
+              </Label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Информация о версии */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#b9ff6a]" />
+            Информация о системе
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Версия:</span>
+                <span className="text-white font-medium">1.2.0</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Последнее обновление:</span>
+                <span className="text-white font-medium">15.01.2024</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Лицензия:</span>
+                <span className="text-white font-medium">MIT</span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Разработчик:</span>
+                <span className="text-[#b9ff6a] font-medium">NETHERCODE</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Техподдержка:</span>
+                <a href="https://t.me/nethercode" target="_blank" rel="noopener noreferrer" className="text-[#b9ff6a] hover:underline">
+                  https://t.me/nethercode
+                </a>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Статус:</span>
+                <Badge className="bg-[#b9ff6a]/20 text-[#b9ff6a] border-[#b9ff6a]/40">
+                  Активна
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
