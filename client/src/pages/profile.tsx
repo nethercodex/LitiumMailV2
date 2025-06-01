@@ -91,60 +91,68 @@ export default function Profile() {
   const userInitials = getInitials(profileData?.firstName, profileData?.lastName, profileData?.username);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       {/* Hero Section with Avatar */}
-      <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-900 border-b border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="relative bg-gradient-to-r from-black/50 via-gray-900/30 to-black/50 backdrop-blur-sm border-b border-[#b9ff6a]/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#b9ff6a]/5 via-transparent to-[#b9ff6a]/5"></div>
+        <div className="relative max-w-6xl mx-auto px-6 py-16">
           <div className="flex flex-col md:flex-row items-center gap-8">
             {/* Avatar */}
             <div className="relative">
-              <Avatar className="w-32 h-32 border-4 border-[#b9ff6a] shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#b9ff6a]/20 to-[#b9ff6a]/5 rounded-full blur-xl"></div>
+              <Avatar className="relative w-36 h-36 border-4 border-[#b9ff6a] shadow-2xl shadow-[#b9ff6a]/25">
                 <AvatarImage src={profileData?.profileImageUrl || ''} alt={profileData?.username} />
-                <AvatarFallback className="text-3xl font-bold bg-[#b9ff6a] text-black">
+                <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] text-black">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
               <Button
                 size="sm"
-                className="absolute -bottom-2 -right-2 rounded-full bg-[#b9ff6a] text-black hover:bg-[#a8e659] w-10 h-10 p-0"
+                className="absolute -bottom-2 -right-2 rounded-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#96d147] w-12 h-12 p-0 shadow-lg transition-all duration-200 hover:scale-105"
               >
-                <Edit className="h-4 w-4" />
+                <Edit className="h-5 w-5" />
               </Button>
             </div>
 
             {/* User Info */}
-            <div className="text-center md:text-left space-y-3">
+            <div className="text-center md:text-left space-y-4">
               <div>
-                <h1 className="text-4xl font-bold text-white">
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mb-2">
                   {profileData?.firstName && profileData?.lastName 
                     ? `${profileData.firstName} ${profileData.lastName}`
                     : profileData?.username
                   }
                 </h1>
-                <p className="text-xl text-[#b9ff6a] font-mono">@{profileData?.username}</p>
+                <p className="text-2xl text-[#b9ff6a] font-mono font-semibold">@{profileData?.username}</p>
               </div>
               
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Badge variant="secondary" className="bg-[#b9ff6a] text-black font-medium px-3 py-1">
+                <Badge variant="secondary" className="bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black font-semibold px-4 py-2 text-sm">
                   {getPlanDisplayName(profileData?.plan || 'basic')}
                 </Badge>
-                <Badge variant={profileData?.isActive ? "default" : "destructive"} className="px-3 py-1">
+                <Badge 
+                  variant={profileData?.isActive ? "default" : "destructive"} 
+                  className={`px-4 py-2 text-sm font-semibold ${profileData?.isActive 
+                    ? 'bg-gradient-to-r from-green-600 to-green-500 text-white' 
+                    : 'bg-gradient-to-r from-red-600 to-red-500 text-white'
+                  }`}
+                >
                   {profileData?.isActive ? (
-                    <><CheckCircle className="h-3 w-3 mr-1" /> Активен</>
+                    <><CheckCircle className="h-4 w-4 mr-2" /> Активен</>
                   ) : (
-                    <><XCircle className="h-3 w-3 mr-1" /> Неактивен</>
+                    <><XCircle className="h-4 w-4 mr-2" /> Неактивен</>
                   )}
                 </Badge>
               </div>
 
-              <div className="text-gray-400">
-                <p className="flex items-center gap-2 justify-center md:justify-start">
-                  <Mail className="h-4 w-4" />
-                  {profileData?.username}@litium.space
+              <div className="text-gray-300 space-y-2">
+                <p className="flex items-center gap-3 justify-center md:justify-start text-lg">
+                  <Mail className="h-5 w-5 text-[#b9ff6a]" />
+                  <span className="font-mono text-[#b9ff6a]">{profileData?.username}@litium.space</span>
                 </p>
                 {profileData?.createdAt && (
-                  <p className="flex items-center gap-2 justify-center md:justify-start mt-1">
-                    <CalendarDays className="h-4 w-4" />
+                  <p className="flex items-center gap-3 justify-center md:justify-start">
+                    <CalendarDays className="h-5 w-5 text-[#b9ff6a]" />
                     С нами с {format(new Date(profileData.createdAt), 'MMMM yyyy', { locale: ru })}
                   </p>
                 )}
@@ -159,52 +167,54 @@ export default function Profile() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Personal Information - Takes 2 columns */}
           <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
-                  <User className="h-5 w-5" />
+            <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border border-[#b9ff6a]/20 backdrop-blur-sm shadow-xl shadow-black/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-[#b9ff6a] flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-[#b9ff6a]/20 to-[#b9ff6a]/10">
+                    <User className="h-6 w-6" />
+                  </div>
                   Личная информация
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-gray-300 text-base">
                   Основные данные вашего аккаунта
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm text-gray-400">Имя</label>
-                      <div className="text-white font-medium">{profileData?.firstName || 'Не указано'}</div>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                      <label className="text-sm font-medium text-[#b9ff6a]">Имя</label>
+                      <div className="text-white font-medium text-lg mt-1">{profileData?.firstName || 'Не указано'}</div>
                     </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Фамилия</label>
-                      <div className="text-white font-medium">{profileData?.lastName || 'Не указано'}</div>
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                      <label className="text-sm font-medium text-[#b9ff6a]">Фамилия</label>
+                      <div className="text-white font-medium text-lg mt-1">{profileData?.lastName || 'Не указано'}</div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm text-gray-400">Имя пользователя</label>
-                      <div className="text-white font-mono font-medium">{profileData?.username}</div>
+                  <div className="space-y-4">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                      <label className="text-sm font-medium text-[#b9ff6a]">Имя пользователя</label>
+                      <div className="text-white font-mono font-medium text-lg mt-1">{profileData?.username}</div>
                     </div>
-                    <div>
-                      <label className="text-sm text-gray-400">Контактный Email</label>
-                      <div className="text-white font-medium">{profileData?.email}</div>
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                      <label className="text-sm font-medium text-[#b9ff6a]">Контактный Email</label>
+                      <div className="text-white font-medium text-lg mt-1">{profileData?.email}</div>
                     </div>
                   </div>
                 </div>
                 
-                <Separator className="bg-gray-800" />
+                <Separator className="bg-gradient-to-r from-transparent via-[#b9ff6a]/30 to-transparent" />
                 
-                <div>
-                  <label className="text-sm text-gray-400">LITIUM Email адрес</label>
-                  <div className="text-[#b9ff6a] font-mono font-medium text-lg">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-[#b9ff6a]/10 via-[#b9ff6a]/5 to-transparent border border-[#b9ff6a]/30">
+                  <label className="text-sm font-medium text-[#b9ff6a]">LITIUM Email адрес</label>
+                  <div className="text-[#b9ff6a] font-mono font-bold text-xl mt-2">
                     {profileData?.username}@litium.space
                   </div>
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <Button className="bg-[#b9ff6a] text-black hover:bg-[#a8e659]">
-                    <Settings className="h-4 w-4 mr-2" />
+                  <Button className="bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#96d147] font-semibold px-6 py-3 shadow-lg transition-all duration-200 hover:scale-105">
+                    <Settings className="h-5 w-5 mr-2" />
                     Редактировать профиль
                   </Button>
                 </div>
@@ -212,29 +222,31 @@ export default function Profile() {
             </Card>
 
             {/* Statistics */}
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
-                  <Mail className="h-5 w-5" />
+            <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border border-[#b9ff6a]/20 backdrop-blur-sm shadow-xl shadow-black/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-[#b9ff6a] flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-[#b9ff6a]/20 to-[#b9ff6a]/10">
+                    <Mail className="h-6 w-6" />
+                  </div>
                   Статистика использования
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-gray-300 text-base">
                   Ваша активность в системе LITIUM.SPACE
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 rounded-lg bg-gray-800">
-                    <div className="text-3xl font-bold text-[#b9ff6a] mb-1">0</div>
-                    <div className="text-sm text-gray-400">Отправлено писем</div>
+                  <div className="text-center p-6 rounded-xl bg-gradient-to-br from-black/50 via-gray-900/40 to-black/50 border border-gray-700/50 hover:border-[#b9ff6a]/30 transition-all duration-200">
+                    <div className="text-4xl font-bold text-[#b9ff6a] mb-2">0</div>
+                    <div className="text-sm text-gray-300 font-medium">Отправлено писем</div>
                   </div>
-                  <div className="text-center p-4 rounded-lg bg-gray-800">
-                    <div className="text-3xl font-bold text-[#b9ff6a] mb-1">0</div>
-                    <div className="text-sm text-gray-400">Получено писем</div>
+                  <div className="text-center p-6 rounded-xl bg-gradient-to-br from-black/50 via-gray-900/40 to-black/50 border border-gray-700/50 hover:border-[#b9ff6a]/30 transition-all duration-200">
+                    <div className="text-4xl font-bold text-[#b9ff6a] mb-2">0</div>
+                    <div className="text-sm text-gray-300 font-medium">Получено писем</div>
                   </div>
-                  <div className="text-center p-4 rounded-lg bg-gray-800">
-                    <div className="text-3xl font-bold text-[#b9ff6a] mb-1">100%</div>
-                    <div className="text-sm text-gray-400">Время работы</div>
+                  <div className="text-center p-6 rounded-xl bg-gradient-to-br from-black/50 via-gray-900/40 to-black/50 border border-gray-700/50 hover:border-[#b9ff6a]/30 transition-all duration-200">
+                    <div className="text-4xl font-bold text-[#b9ff6a] mb-2">100%</div>
+                    <div className="text-sm text-gray-300 font-medium">Время работы</div>
                   </div>
                 </div>
               </CardContent>
@@ -243,36 +255,38 @@ export default function Profile() {
 
           {/* Subscription Information - Sidebar */}
           <div className="lg:col-span-1">
-            <Card className="bg-gray-900 border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
-                  <Package className="h-5 w-5" />
+            <Card className="bg-gradient-to-br from-gray-900/80 via-gray-800/60 to-gray-900/80 border border-[#b9ff6a]/20 backdrop-blur-sm shadow-xl shadow-black/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-[#b9ff6a] flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-[#b9ff6a]/20 to-[#b9ff6a]/10">
+                    <Package className="h-6 w-6" />
+                  </div>
                   Подписка
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-gray-300 text-base">
                   Управление тарифным планом
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center p-4 rounded-lg bg-gray-800">
-                  <div className="text-lg font-bold text-[#b9ff6a] mb-1">
+              <CardContent className="space-y-6">
+                <div className="text-center p-6 rounded-xl bg-gradient-to-br from-[#b9ff6a]/10 via-[#b9ff6a]/5 to-transparent border border-[#b9ff6a]/30">
+                  <div className="text-xl font-bold text-[#b9ff6a] mb-2">
                     {getPlanDisplayName(profileData?.plan || 'basic')}
                   </div>
-                  <div className="text-sm text-gray-400">Текущий план</div>
+                  <div className="text-sm text-gray-300 font-medium">Текущий план</div>
                 </div>
                 
                 {/* Plan Selection */}
                 <div className="space-y-3">
-                  <h4 className="text-white font-medium text-sm">Изменить план:</h4>
+                  <h4 className="text-white font-semibold text-base">Изменить план:</h4>
                   {['basic', 'pro', 'enterprise'].map((plan) => (
                     <Button
                       key={plan}
                       variant={profileData?.plan === plan ? "default" : "outline"}
                       size="sm"
-                      className={`w-full justify-between ${
+                      className={`w-full justify-between font-medium transition-all duration-200 ${
                         profileData?.plan === plan 
-                          ? 'bg-[#b9ff6a] text-black hover:bg-[#a8e659]' 
-                          : 'border-gray-700 text-white hover:bg-gray-800'
+                          ? 'bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#96d147] shadow-lg' 
+                          : 'border-gray-600 bg-gradient-to-r from-black/40 to-gray-900/40 text-white hover:bg-gradient-to-r hover:from-gray-800/60 hover:to-gray-700/60 hover:border-[#b9ff6a]/50'
                       }`}
                       onClick={() => changePlanMutation.mutate(plan)}
                       disabled={changePlanMutation.isPending || profileData?.plan === plan}
@@ -285,16 +299,16 @@ export default function Profile() {
                   ))}
                 </div>
 
-                <Separator className="bg-gray-800" />
+                <Separator className="bg-gradient-to-r from-transparent via-[#b9ff6a]/30 to-transparent" />
 
-                <div className="text-center text-sm text-gray-400">
+                <div className="text-center text-sm">
                   {profileData?.createdAt && isValid(new Date(profileData.createdAt)) && (
-                    <>
-                      Дата регистрации:<br />
-                      <span className="text-white">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-black/40 to-gray-900/40 border border-gray-700/50">
+                      <div className="text-[#b9ff6a] font-medium">Дата регистрации:</div>
+                      <div className="text-white font-semibold mt-1">
                         {format(new Date(profileData.createdAt), 'dd MMMM yyyy', { locale: ru })}
-                      </span>
-                    </>
+                      </div>
+                    </div>
                   )}
                 </div>
               </CardContent>
