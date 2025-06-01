@@ -128,6 +128,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Создаем сессию
       (req as any).session.user = user;
+
+      // Создаем запись в user_sessions
+      const userAgent = req.get('User-Agent') || 'Неизвестное устройство';
+      const ipAddress = req.ip || req.connection.remoteAddress || 'Unknown';
+      
+      try {
+        await storage.createSession({
+          id: (req as any).sessionID,
+          userId: user.id,
+          sessionId: (req as any).sessionID,
+          deviceInfo: userAgent,
+          location: 'Россия, Москва', // Упрощенно для демо
+          ipAddress: ipAddress,
+          isActive: true
+        });
+      } catch (sessionError) {
+        console.error("Error creating session:", sessionError);
+        // Не прерываем вход из-за ошибки сессии
+      }
       
       res.json({ user, message: "Вход выполнен успешно" });
     } catch (error) {
@@ -233,6 +252,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error changing password:", error);
       res.status(500).json({ message: "Failed to change password" });
     }
+  });
+
+  // Logout route
+  app.get('/api/logout', (req: any, res) => {
+    req.session.destroy(() => {
+      res.clearCookie('litium.session');
+      res.redirect('/');
+    });
   });
 
   // Admin routes
