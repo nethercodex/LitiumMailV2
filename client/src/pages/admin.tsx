@@ -14,6 +14,7 @@ import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
+import { getPlanDisplayName, PLANS } from "@shared/plans";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -544,18 +545,18 @@ export default function Admin() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-900 border-gray-700">
-                        <SelectItem value="free" className="text-white hover:bg-gray-800">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                            Free Plan
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="premium" className="text-white hover:bg-gray-800">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-[#b9ff6a] rounded-full"></div>
-                            Premium Plan
-                          </div>
-                        </SelectItem>
+                        {Object.values(PLANS).map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id} className="text-white hover:bg-gray-800">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                plan.id === 'basic' ? 'bg-gray-500' : 
+                                plan.id === 'pro' ? 'bg-[#b9ff6a]' : 
+                                'bg-purple-500'
+                              }`}></div>
+                              {plan.name}
+                            </div>
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

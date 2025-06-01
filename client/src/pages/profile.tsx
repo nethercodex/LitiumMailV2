@@ -11,6 +11,17 @@ import { getPlanDisplayName, getPlanPrice } from "@shared/plans";
 export default function Profile() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  
+  // Запрос данных пользователя напрямую для обхода кеша
+  const { data: freshUser, refetch } = useQuery({
+    queryKey: ["/api/auth/user"],
+    refetchInterval: 5000, // Обновлять каждые 5 секунд
+    refetchOnWindowFocus: true,
+    staleTime: 0 // Считать данные устаревшими сразу
+  });
+  
+  // Используем свежие данные, если они доступны
+  const currentUser = freshUser || user;
 
   useEffect(() => {
     if (!isLoading && !user) {
