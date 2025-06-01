@@ -3,7 +3,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff, AlertTriangle, CheckCircle, LogOut } from "lucide-react";
+import { isUnauthorizedError } from "@/lib/authUtils";
+import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff, AlertTriangle, CheckCircle, LogOut, User, Monitor, Globe, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useLocation } from "wouter";
 import type { UserSession } from "@shared/schema";
+
+interface SecurityStatus {
+  securityScore: number;
+  twoFactorEnabled: boolean;
+  phoneVerified: boolean;
+  activeSessions: number;
+  lastPasswordChange: string;
+  securityAlerts: string[];
+}
 
 export default function Security() {
   const { user, isLoading } = useAuth();
@@ -25,10 +35,48 @@ export default function Security() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Загружаем общие настройки для отображения названия сайта
+  const { data: generalSettings } = useQuery({
+    queryKey: ["/api/admin/settings/general"],
+    retry: false,
+  });
+
   // Load user sessions
   const { data: sessions = [], isLoading: sessionsLoading } = useQuery<UserSession[]>({
     queryKey: ["/api/sessions"],
     enabled: !!user,
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Не авторизован",
+          description: "Вы не авторизованы. Перенаправляем на страницу входа...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+    },
+  });
+
+  // Load security status
+  const { data: securityStatus, isLoading: securityLoading } = useQuery<SecurityStatus>({
+    queryKey: ["/api/security/status"],
+    enabled: !!user,
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Не авторизован",
+          description: "Вы не авторизованы. Перенаправляем на страницу входа...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+    },
   });
 
   const changePasswordMutation = useMutation({
@@ -43,8 +91,20 @@ export default function Security() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      queryClient.invalidateQueries({ queryKey: ["/api/security/status"] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Не авторизован",
+          description: "Вы не авторизованы. Перенаправляем на страницу входа...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Ошибка",
         description: error.message || "Не удалось изменить пароль",
@@ -60,15 +120,60 @@ export default function Security() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/security/status"] });
       toast({
         title: "Сессия завершена",
         description: "Сессия успешно завершена",
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Не авторизован",
+          description: "Вы не авторизованы. Перенаправляем на страницу входа...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
       toast({
         title: "Ошибка",
         description: error.message || "Не удалось завершить сессию",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Terminate all sessions
+  const terminateAllSessionsMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", "/api/sessions/terminate-all");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/security/status"] });
+      toast({
+        title: "Все сессии завершены",
+        description: "Все активные сессии успешно завершены",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Не авторизован",
+          description: "Вы не авторизованы. Перенаправляем на страницу входа...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось завершить все сессии",
         variant: "destructive",
       });
     },
@@ -103,6 +208,33 @@ export default function Security() {
     }
 
     changePasswordMutation.mutate({ currentPassword, newPassword });
+  };
+
+  const getDeviceIcon = (userAgent: string) => {
+    if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iPhone')) {
+      return <Smartphone className="h-4 w-4" />;
+    }
+    return <Monitor className="h-4 w-4" />;
+  };
+
+  const getBrowserName = (userAgent: string) => {
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    return 'Неизвестный';
+  };
+
+  const getSecurityScoreColor = (score: number) => {
+    if (score >= 80) return 'text-[#b9ff6a]';
+    if (score >= 60) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  const getSecurityScoreLabel = (score: number) => {
+    if (score >= 80) return 'Высокий';
+    if (score >= 60) return 'Средний';
+    return 'Низкий';
   };
 
   useEffect(() => {
@@ -152,7 +284,9 @@ export default function Security() {
               <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
                 <Mail className="text-black h-5 w-5" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] bg-clip-text text-transparent">LITIUM.SPACE</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] bg-clip-text text-transparent">
+                {generalSettings?.siteName || 'LITIUM.SPACE'}
+              </span>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -292,8 +426,150 @@ export default function Security() {
               </CardContent>
             </Card>
 
-            {/* Привязка номера телефона */}
+            {/* Активные сессии */}
             <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20 mt-8">
+              <CardHeader className="pb-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                      <Monitor className="w-5 h-5 text-black" />
+                    </div>
+                    <span>Активные сессии</span>
+                  </CardTitle>
+                  {sessions.length > 1 && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => terminateAllSessionsMutation.mutate()}
+                      disabled={terminateAllSessionsMutation.isPending}
+                      className="bg-red-600/20 border border-red-500/30 text-red-300 hover:bg-red-600/30"
+                    >
+                      {terminateAllSessionsMutation.isPending ? "Завершение..." : "Завершить все"}
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {sessionsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400">Загрузка сессий...</div>
+                  </div>
+                ) : sessions.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400">Активных сессий не найдено</div>
+                  </div>
+                ) : (
+                  sessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-4 bg-gray-900/40 border border-gray-700/40 rounded-xl backdrop-blur-sm"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 rounded-lg flex items-center justify-center">
+                          {getDeviceIcon(session.userAgent || '')}
+                        </div>
+                        <div>
+                          <p className="text-white font-medium">
+                            {getBrowserName(session.userAgent || '')} • {session.ipAddress || 'Неизвестный IP'}
+                          </p>
+                          <p className="text-sm text-gray-400">
+                            Последняя активность: {new Date(session.lastActivity || '').toLocaleString('ru-RU')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {session.isActive && (
+                          <Badge className="bg-[#b9ff6a]/20 text-[#b9ff6a] border-[#b9ff6a]/30">
+                            Текущая
+                          </Badge>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => terminateSessionMutation.mutate(session.id)}
+                          disabled={terminateSessionMutation.isPending}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        >
+                          <LogOut className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Статус безопасности */}
+          <div className="space-y-8">
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                    <Key className="w-5 h-5 text-black" />
+                  </div>
+                  <span>Статус безопасности</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {securityLoading ? (
+                  <div className="text-center py-4">
+                    <div className="text-gray-400">Загрузка...</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <div className={`text-4xl font-bold mb-2 ${getSecurityScoreColor(securityStatus?.securityScore || 0)}`}>
+                        {securityStatus?.securityScore || 0}%
+                      </div>
+                      <p className="text-gray-300 text-lg font-medium">
+                        Уровень безопасности: {getSecurityScoreLabel(securityStatus?.securityScore || 0)}
+                      </p>
+                    </div>
+
+                    <Separator className="bg-gray-700/40" />
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Двухфакторная аутентификация</span>
+                        <Badge variant={securityStatus?.twoFactorEnabled ? "default" : "outline"} 
+                               className={securityStatus?.twoFactorEnabled ? "bg-[#b9ff6a]/20 text-[#b9ff6a] border-[#b9ff6a]/30" : "bg-orange-500/20 text-orange-300 border-orange-500/40"}>
+                          {securityStatus?.twoFactorEnabled ? "Включена" : "Отключена"}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Номер телефона</span>
+                        <Badge variant={securityStatus?.phoneVerified ? "default" : "outline"}
+                               className={securityStatus?.phoneVerified ? "bg-[#b9ff6a]/20 text-[#b9ff6a] border-[#b9ff6a]/30" : "bg-orange-500/20 text-orange-300 border-orange-500/40"}>
+                          {securityStatus?.phoneVerified ? "Подтвержден" : "Не привязан"}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Активные сессии</span>
+                        <Badge variant="outline" className="bg-gray-700/20 text-gray-300 border-gray-600/40">
+                          {securityStatus?.activeSessions || 0}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Последнее изменение пароля</span>
+                        <span className="text-sm text-gray-400">
+                          {securityStatus?.lastPasswordChange ? 
+                            new Date(securityStatus.lastPasswordChange).toLocaleDateString('ru-RU') : 
+                            'Никогда'
+                          }
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Привязка номера телефона */}
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20">
               <CardHeader className="pb-6">
                 <CardTitle className="flex items-center space-x-3 text-white text-xl">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
@@ -326,175 +602,6 @@ export default function Security() {
                 <Button className="w-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#97d548] font-semibold h-12 rounded-xl shadow-lg shadow-[#b9ff6a]/20 transition-all duration-200">
                   Привязать номер
                 </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Статус безопасности */}
-          <div>
-            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center space-x-3 text-white text-xl">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
-                    <Key className="w-5 h-5 text-black" />
-                  </div>
-                  <span>Статус безопасности</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl backdrop-blur-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-sm text-white font-medium">Пароль</span>
-                    </div>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
-                      Установлен
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl backdrop-blur-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-sm text-white font-medium">Email</span>
-                    </div>
-                    <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
-                      Подтвержден
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl backdrop-blur-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                      <span className="text-sm text-white font-medium">Телефон</span>
-                    </div>
-                    <Badge variant="outline" className="bg-orange-500/20 text-orange-300 border-orange-500/40 px-3 py-1">
-                      Не привязан
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 rounded-xl backdrop-blur-sm">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <span className="text-sm text-white font-medium">2FA</span>
-                    </div>
-                    <Badge variant="outline" className="bg-red-500/20 text-red-300 border-red-500/40 px-3 py-1">
-                      Отключена
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-500/20 rounded-xl backdrop-blur-sm">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <AlertTriangle className="h-5 w-5 text-orange-300" />
-                    <p className="text-sm text-orange-300 font-medium">Рекомендации:</p>
-                  </div>
-                  <ul className="text-xs text-gray-300 space-y-1.5">
-                    <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
-                      <span>Привяжите номер телефона</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
-                      <span>Включите двухфакторную аутентификацию</span>
-                    </li>
-                    <li className="flex items-center space-x-2">
-                      <div className="w-1.5 h-1.5 bg-orange-300 rounded-full"></div>
-                      <span>Регулярно меняйте пароль</span>
-                    </li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Сессии */}
-            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20 mt-8">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center space-x-3 text-white text-xl">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
-                    <Shield className="w-5 h-5 text-black" />
-                  </div>
-                  <span>Активные сессии</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {sessionsLoading ? (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm animate-pulse">
-                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                ) : sessions.length > 0 ? (
-                  <div className="space-y-4">
-                    {sessions.map((session: any, index: number) => (
-                      <div key={session.id} className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-3 h-3 rounded-full ${session.isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
-                            <span className="text-sm font-medium text-white">
-                              {session.deviceInfo || 'Неизвестное устройство'}
-                              {index === 0 && ' (Текущая сессия)'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className={`px-3 py-1 ${
-                              session.isActive 
-                                ? 'bg-green-500/20 text-green-300 border-green-500/40'
-                                : 'bg-gray-500/20 text-gray-300 border-gray-500/40'
-                            }`}>
-                              {session.isActive ? 'Активна' : 'Неактивна'}
-                            </Badge>
-                            {index !== 0 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => terminateSessionMutation.mutate(session.id)}
-                                disabled={terminateSessionMutation.isPending}
-                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-2"
-                              >
-                                <LogOut className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs text-gray-300">
-                            {session.deviceInfo || 'Неизвестный браузер'} • {session.location || 'Неизвестное местоположение'}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            Последняя активность: {new Date(session.lastActivity || session.createdAt).toLocaleString('ru-RU', {
-                              day: 'numeric',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Shield className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                    <p className="text-gray-400">Активных сессий не найдено</p>
-                  </div>
-                )}
-
-                {sessions.length > 1 && (
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-red-500/40 text-red-300 hover:bg-red-500/10 hover:text-red-200 h-12 rounded-xl transition-all duration-200"
-                    onClick={() => {
-                      sessions.slice(1).forEach((session: any) => {
-                        terminateSessionMutation.mutate(session.id);
-                      });
-                    }}
-                    disabled={terminateSessionMutation.isPending}
-                  >
-                    {terminateSessionMutation.isPending ? 'Завершение...' : 'Завершить все остальные сессии'}
-                  </Button>
-                )}
               </CardContent>
             </Card>
           </div>
