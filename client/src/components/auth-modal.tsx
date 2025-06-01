@@ -151,231 +151,368 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center text-white">
-            Добро пожаловать в LITIUM.SPACE
-          </DialogTitle>
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto bg-black border-gray-800 shadow-2xl">
+        <DialogHeader className="space-y-4 pb-6">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] rounded-lg flex items-center justify-center">
+              <Mail className="w-6 h-6 text-black" />
+            </div>
+            <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] bg-clip-text text-transparent">
+              LITIUM.SPACE
+            </DialogTitle>
+          </div>
+          <p className="text-gray-400 text-center text-lg">Современная почтовая система нового поколения</p>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800 mb-6">
-            <TabsTrigger value="login" className="data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black">
-              Вход
+          <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-1 mb-8">
+            <TabsTrigger 
+              value="login" 
+              className="rounded-lg text-gray-300 font-semibold transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b9ff6a] data-[state=active]:to-[#8ed653] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
+            >
+              Вход в систему
             </TabsTrigger>
-            <TabsTrigger value="register" className="data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black">
-              Регистрация
+            <TabsTrigger 
+              value="register" 
+              className="rounded-lg text-gray-300 font-semibold transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b9ff6a] data-[state=active]:to-[#8ed653] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
+            >
+              Создать аккаунт
             </TabsTrigger>
           </TabsList>
 
           {/* Форма входа */}
           <TabsContent value="login">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader className="text-center">
-                <CardTitle className="text-white">Вход в аккаунт</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Введите данные для входа в систему
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-white flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      Имя пользователя
-                    </Label>
-                    <Input
-                      id="username"
-                      placeholder="username"
-                      {...loginForm.register("username")}
-                      className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
-                    />
-                    {loginForm.formState.errors.username && (
-                      <p className="text-sm text-red-400">{loginForm.formState.errors.username.message}</p>
-                    )}
+            <div className="max-w-md mx-auto">
+              <Card className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 shadow-2xl backdrop-blur-sm">
+                <CardHeader className="text-center pb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#b9ff6a] to-[#8ed653] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-black" />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-white flex items-center gap-2">
-                      <Lock className="w-4 h-4" />
-                      Пароль
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      {...loginForm.register("password")}
-                      className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
-                    />
-                    {loginForm.formState.errors.password && (
-                      <p className="text-sm text-red-400">{loginForm.formState.errors.password.message}</p>
-                    )}
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#b9ff6a] hover:bg-[#a8e85c] text-black font-semibold"
-                    disabled={loginMutation.isPending}
-                  >
-                    {loginMutation.isPending ? "Вход..." : "Войти"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Форма регистрации */}
-          <TabsContent value="register">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Форма регистрации */}
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Создать аккаунт</CardTitle>
-                  <CardDescription className="text-gray-400">
-                    Заполните форму для регистрации
+                  <CardTitle className="text-2xl font-bold text-white mb-2">Вход в систему</CardTitle>
+                  <CardDescription className="text-gray-400 text-lg">
+                    Войдите в свой аккаунт LITIUM.SPACE
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-white">Имя</Label>
-                        <Input
-                          id="firstName"
-                          placeholder="Иван"
-                          {...registerForm.register("firstName")}
-                          className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
-                        />
-                        {registerForm.formState.errors.firstName && (
-                          <p className="text-sm text-red-400">{registerForm.formState.errors.firstName.message}</p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-white">Фамилия</Label>
-                        <Input
-                          id="lastName"
-                          placeholder="Иванов"
-                          {...registerForm.register("lastName")}
-                          className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
-                        />
-                        {registerForm.formState.errors.lastName && (
-                          <p className="text-sm text-red-400">{registerForm.formState.errors.lastName.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="username" className="text-white flex items-center gap-2">
-                        <User className="w-4 h-4" />
+                <CardContent className="space-y-6">
+                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="username" className="text-white flex items-center gap-3 text-sm font-medium">
+                        <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                          <User className="w-4 h-4 text-[#b9ff6a]" />
+                        </div>
                         Имя пользователя
                       </Label>
                       <Input
                         id="username"
-                        placeholder="username"
-                        {...registerForm.register("username")}
-                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                        placeholder="Введите имя пользователя"
+                        {...loginForm.register("username")}
+                        className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
                       />
-                      <p className="text-xs text-gray-400">Ваш email будет: username@litium.space</p>
-                      {registerForm.formState.errors.username && (
-                        <p className="text-sm text-red-400">{registerForm.formState.errors.username.message}</p>
+                      {loginForm.formState.errors.username && (
+                        <p className="text-sm text-red-400 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-white">!</span>
+                          </div>
+                          {loginForm.formState.errors.username.message}
+                        </p>
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-white flex items-center gap-2">
-                        <Mail className="w-4 h-4" />
-                        Email для связи
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="ivan@example.com"
-                        {...registerForm.register("email")}
-                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
-                      />
-                      {registerForm.formState.errors.email && (
-                        <p className="text-sm text-red-400">{registerForm.formState.errors.email.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password" className="text-white flex items-center gap-2">
-                        <Lock className="w-4 h-4" />
+                    <div className="space-y-3">
+                      <Label htmlFor="password" className="text-white flex items-center gap-3 text-sm font-medium">
+                        <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                          <Lock className="w-4 h-4 text-[#b9ff6a]" />
+                        </div>
                         Пароль
                       </Label>
                       <Input
                         id="password"
                         type="password"
-                        placeholder="••••••••"
-                        {...registerForm.register("password")}
-                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-[#b9ff6a]"
+                        placeholder="Введите пароль"
+                        {...loginForm.register("password")}
+                        className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
                       />
-                      {registerForm.formState.errors.password && (
-                        <p className="text-sm text-red-400">{registerForm.formState.errors.password.message}</p>
+                      {loginForm.formState.errors.password && (
+                        <p className="text-sm text-red-400 flex items-center gap-2">
+                          <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-white">!</span>
+                          </div>
+                          {loginForm.formState.errors.password.message}
+                        </p>
                       )}
                     </div>
 
                     <Button 
                       type="submit" 
-                      className="w-full bg-[#b9ff6a] hover:bg-[#a8e85c] text-black font-semibold"
-                      disabled={registerMutation.isPending}
+                      className="w-full h-12 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] hover:from-[#a8e85c] hover:to-[#7dd142] text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                      disabled={loginMutation.isPending}
                     >
-                      {registerMutation.isPending ? "Создание..." : "Создать аккаунт"}
+                      {loginMutation.isPending ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                          Входим...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-5 h-5" />
+                          Войти в систему
+                        </div>
+                      )}
                     </Button>
                   </form>
+                  
+                  <div className="text-center pt-4">
+                    <p className="text-gray-400 text-sm">
+                      Нет аккаунта? 
+                      <button 
+                        onClick={() => setActiveTab("register")}
+                        className="text-[#b9ff6a] hover:text-[#8ed653] font-semibold ml-2 transition-colors duration-300"
+                      >
+                        Создать бесплатно
+                      </button>
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* Форма регистрации */}
+          <TabsContent value="register">
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+              {/* Форма регистрации */}
+              <div className="xl:col-span-3">
+                <Card className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 shadow-2xl backdrop-blur-sm">
+                  <CardHeader className="text-center pb-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#b9ff6a] to-[#8ed653] rounded-full flex items-center justify-center mx-auto mb-4">
+                      <User className="w-8 h-8 text-black" />
+                    </div>
+                    <CardTitle className="text-2xl font-bold text-white mb-2">Создать аккаунт</CardTitle>
+                    <CardDescription className="text-gray-400 text-lg">
+                      Присоединяйтесь к LITIUM.SPACE сегодня
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <Label htmlFor="firstName" className="text-white text-sm font-medium">Имя</Label>
+                          <Input
+                            id="firstName"
+                            placeholder="Иван"
+                            {...registerForm.register("firstName")}
+                            className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                          />
+                          {registerForm.formState.errors.firstName && (
+                            <p className="text-sm text-red-400 flex items-center gap-2">
+                              <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-white">!</span>
+                              </div>
+                              {registerForm.formState.errors.firstName.message}
+                            </p>
+                          )}
+                        </div>
+                        <div className="space-y-3">
+                          <Label htmlFor="lastName" className="text-white text-sm font-medium">Фамилия</Label>
+                          <Input
+                            id="lastName"
+                            placeholder="Иванов"
+                            {...registerForm.register("lastName")}
+                            className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                          />
+                          {registerForm.formState.errors.lastName && (
+                            <p className="text-sm text-red-400 flex items-center gap-2">
+                              <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-white">!</span>
+                              </div>
+                              {registerForm.formState.errors.lastName.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="username" className="text-white flex items-center gap-3 text-sm font-medium">
+                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                            <User className="w-4 h-4 text-[#b9ff6a]" />
+                          </div>
+                          Имя пользователя
+                        </Label>
+                        <Input
+                          id="username"
+                          placeholder="username"
+                          {...registerForm.register("username")}
+                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        />
+                        <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-800/30 p-3 rounded-lg border border-gray-700">
+                          <Mail className="w-4 h-4 text-[#b9ff6a]" />
+                          Ваш email будет: <span className="text-[#b9ff6a] font-semibold">{registerForm.watch("username") || "username"}@litium.space</span>
+                        </div>
+                        {registerForm.formState.errors.username && (
+                          <p className="text-sm text-red-400 flex items-center gap-2">
+                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                              <span className="text-xs text-white">!</span>
+                            </div>
+                            {registerForm.formState.errors.username.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="email" className="text-white flex items-center gap-3 text-sm font-medium">
+                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                            <Mail className="w-4 h-4 text-[#b9ff6a]" />
+                          </div>
+                          Email для связи
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="ivan@example.com"
+                          {...registerForm.register("email")}
+                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        />
+                        {registerForm.formState.errors.email && (
+                          <p className="text-sm text-red-400 flex items-center gap-2">
+                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                              <span className="text-xs text-white">!</span>
+                            </div>
+                            {registerForm.formState.errors.email.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="password" className="text-white flex items-center gap-3 text-sm font-medium">
+                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                            <Lock className="w-4 h-4 text-[#b9ff6a]" />
+                          </div>
+                          Пароль
+                        </Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Создайте надежный пароль"
+                          {...registerForm.register("password")}
+                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        />
+                        {registerForm.formState.errors.password && (
+                          <p className="text-sm text-red-400 flex items-center gap-2">
+                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                              <span className="text-xs text-white">!</span>
+                            </div>
+                            {registerForm.formState.errors.password.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] hover:from-[#a8e85c] hover:to-[#7dd142] text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                        disabled={registerMutation.isPending}
+                      >
+                        {registerMutation.isPending ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                            Создаем аккаунт...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <User className="w-5 h-5" />
+                            Создать аккаунт бесплатно
+                          </div>
+                        )}
+                      </Button>
+                    </form>
+                    
+                    <div className="text-center pt-4">
+                      <p className="text-gray-400 text-sm">
+                        Уже есть аккаунт? 
+                        <button 
+                          onClick={() => setActiveTab("login")}
+                          className="text-[#b9ff6a] hover:text-[#8ed653] font-semibold ml-2 transition-colors duration-300"
+                        >
+                          Войти
+                        </button>
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Тарифные планы */}
-              <div className="space-y-4">
+              <div className="xl:col-span-2 space-y-6">
                 <div className="text-center">
-                  <h3 className="text-xl font-bold text-white mb-2">Выберите тарифный план</h3>
-                  <p className="text-gray-400">Начните с бесплатного плана и обновите при необходимости</p>
+                  <h3 className="text-2xl font-bold text-white mb-3">Выберите тариф</h3>
+                  <p className="text-gray-400 text-lg">Начните бесплатно, обновляйтесь по мере роста</p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {plans.map((plan) => (
                     <Card 
                       key={plan.id}
-                      className={`relative cursor-pointer transition-all border-2 ${
+                      className={`relative cursor-pointer transition-all duration-300 border-2 transform hover:scale-105 ${
                         registerForm.watch("plan") === plan.id 
-                          ? "border-[#b9ff6a] bg-gray-800" 
-                          : "border-gray-700 bg-gray-800 hover:border-gray-600"
+                          ? "border-[#b9ff6a] bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-[#b9ff6a]/20" 
+                          : "border-gray-700 bg-gradient-to-br from-gray-900 to-black hover:border-gray-600 hover:shadow-xl"
                       }`}
                       onClick={() => registerForm.setValue("plan", plan.id as "basic" | "pro" | "enterprise")}
                     >
                       {plan.popular && (
-                        <Badge className="absolute -top-2 left-4 bg-[#b9ff6a] text-black">
-                          <Star className="w-3 h-3 mr-1" />
-                          Популярный
-                        </Badge>
+                        <div className="absolute -top-3 -right-3">
+                          <Badge className="bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] text-black px-3 py-1 text-xs font-bold shadow-lg">
+                            <Star className="w-3 h-3 mr-1 fill-current" />
+                            ПОПУЛЯРНЫЙ
+                          </Badge>
+                        </div>
                       )}
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-[#b9ff6a] rounded-lg text-black">
+                      
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-xl ${plan.popular ? 'bg-gradient-to-r from-[#b9ff6a] to-[#8ed653]' : 'bg-gray-800'} text-black`}>
                               {plan.icon}
                             </div>
                             <div>
-                              <h4 className="font-semibold text-white">{plan.name}</h4>
+                              <h4 className="text-xl font-bold text-white mb-1">{plan.name}</h4>
                               <p className="text-sm text-gray-400">{plan.description}</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-[#b9ff6a]">{plan.price}</p>
+                            <p className={`text-2xl font-bold ${plan.popular ? 'text-[#b9ff6a]' : 'text-white'}`}>
+                              {plan.price}
+                            </p>
                           </div>
                         </div>
-                        <div className="space-y-1">
+                        
+                        <div className="space-y-3">
                           {plan.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-300">
-                              <CheckCircle className="w-4 h-4 text-[#b9ff6a]" />
-                              {feature}
+                            <div key={idx} className="flex items-center gap-3 text-sm">
+                              <div className="w-5 h-5 bg-[#b9ff6a] rounded-full flex items-center justify-center flex-shrink-0">
+                                <CheckCircle className="w-3 h-3 text-black" />
+                              </div>
+                              <span className="text-gray-300">{feature}</span>
                             </div>
                           ))}
                         </div>
+                        
+                        {registerForm.watch("plan") === plan.id && (
+                          <div className="mt-4 p-3 bg-[#b9ff6a]/10 border border-[#b9ff6a]/30 rounded-lg">
+                            <div className="flex items-center gap-2 text-[#b9ff6a] text-sm font-semibold">
+                              <CheckCircle className="w-4 h-4" />
+                              Выбранный план
+                            </div>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+                
+                <div className="text-center p-4 bg-gray-900/50 rounded-lg border border-gray-700">
+                  <p className="text-gray-400 text-sm">
+                    💡 Все планы включают 30-дневную гарантию возврата средств
+                  </p>
                 </div>
               </div>
             </div>
