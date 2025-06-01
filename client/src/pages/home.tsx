@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Plus, Search, Inbox, Send, Trash2, LogOut } from "lucide-react";
+import { Mail, Plus, Search, Inbox, Send, Trash2, LogOut, User, Shield, Settings, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Sidebar from "@/components/sidebar";
 import EmailList from "@/components/email-list";
@@ -113,14 +114,45 @@ export default function Home() {
               </Button>
             </Link>
             
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-text-muted">
-                {user?.firstName || user?.email}
-              </span>
-              <Button variant="ghost" size="icon" onClick={handleLogout} className="btn-hover-scale">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center space-x-2 hover:bg-surface/50 px-3 py-2 rounded-lg transition-colors">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-[#b9ff6a]/20 rounded-full flex items-center justify-center border border-[#b9ff6a]/30">
+                      <User className="w-4 h-4 text-[#b9ff6a]" />
+                    </div>
+                    <span className="text-sm font-medium text-white">
+                      {user?.firstName || user?.username}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-text-muted" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
+                <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
+                  <User className="w-4 h-4 text-[#b9ff6a]" />
+                  <span>Профиль</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
+                  <Shield className="w-4 h-4 text-[#b9ff6a]" />
+                  <span>Безопасность</span>
+                </DropdownMenuItem>
+                {user?.id === 'admin' && (
+                  <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
+                    <Settings className="w-4 h-4 text-[#b9ff6a]" />
+                    <span>Админ-панель</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator className="bg-[#b9ff6a]/20 my-1" />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-red-500/10 focus:bg-red-500/10 text-red-400"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Выйти</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
