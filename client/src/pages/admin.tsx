@@ -639,6 +639,8 @@ export default function Admin() {
 // Компонент настроек системы
 function AdminSettings() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const [generalSettings, setGeneralSettings] = useState({
     siteName: 'LITIUM.SPACE',
     siteDescription: 'Надежная коммуникационная платформа',
@@ -679,6 +681,26 @@ function AdminSettings() {
     performanceAlerts: true
   });
 
+  // Загрузка текущих настроек
+  const { data: currentSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ["/api/admin/settings"],
+  });
+
+  // Обновляем локальные состояния при загрузке настроек
+  useEffect(() => {
+    if (currentSettings) {
+      if (currentSettings.general) {
+        setGeneralSettings(currentSettings.general);
+      }
+      if (currentSettings.security) {
+        setSecuritySettings(currentSettings.security);
+      }
+      if (currentSettings.notifications) {
+        setNotificationSettings(currentSettings.notifications);
+      }
+    }
+  }, [currentSettings]);
+
   const saveSettingsMutation = useMutation({
     mutationFn: async (settings: any) => {
       return apiRequest('PUT', '/api/admin/settings', settings);
@@ -704,6 +726,104 @@ function AdminSettings() {
       security: securitySettings,
       notifications: notificationSettings
     });
+  };
+
+  // Перезапуск системы
+  const restartSystemMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('POST', '/api/admin/system/restart');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Система перезапускается",
+        description: "Система будет перезапущена через несколько секунд",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка перезапуска",
+        description: error.message || "Не удалось перезапустить систему",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Очистка кэша
+  const clearCacheMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('POST', '/api/admin/system/clear-cache');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Кэш очищен",
+        description: "Кэш системы успешно очищен",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка очистки кэша",
+        description: error.message || "Не удалось очистить кэш",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Экспорт конфигурации
+  const exportConfigMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest('GET', '/api/admin/config/export');
+    },
+    onSuccess: (data) => {
+      // Создаем файл для скачивания
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `litium-config-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Конфигурация экспортирована",
+        description: "Файл конфигурации сохранен на компьютер",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка экспорта",
+        description: error.message || "Не удалось экспортировать конфигурацию",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Переключение режима обслуживания
+  const toggleMaintenanceMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      return apiRequest('POST', '/api/admin/maintenance', { enabled });
+    },
+    onSuccess: (data) => {
+      setGeneralSettings(prev => ({ ...prev, maintenanceMode: data.enabled }));
+      toast({
+        title: data.enabled ? "Режим обслуживания включен" : "Режим обслуживания отключен",
+        description: data.enabled 
+          ? "Сайт недоступен для обычных пользователей"
+          : "Сайт снова доступен для всех пользователей",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка переключения режима",
+        description: error.message || "Не удалось изменить режим обслуживания",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleMaintenanceToggle = () => {
+    toggleMaintenanceMutation.mutate(!generalSettings.maintenanceMode);
   };
 
   return (
@@ -1123,6 +1243,109 @@ function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Дополнительные функции системы */}
+      <Card className="bg-gray-900/50 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+            <Settings className="w-5 h-5 text-[#b9ff6a]" />
+            Управление системой
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Режим обслуживания */}
+            <div className="flex items-center justify-between p-3 border border-gray-700 rounded-lg bg-gray-800/50">
+              <div>
+                <div className="font-medium text-white">Режим обслуживания</div>
+                <div className="text-sm text-gray-400">
+                  {generalSettings.maintenanceMode ? "Включен" : "Отключен"}
+                </div>
+              </div>
+              <Button
+                variant={generalSettings.maintenanceMode ? "destructive" : "outline"}
+                size="sm"
+                onClick={handleMaintenanceToggle}
+                disabled={toggleMaintenanceMutation.isPending}
+              >
+                {generalSettings.maintenanceMode ? "Отключить" : "Включить"}
+              </Button>
+            </div>
+
+            {/* Перезапуск системы */}
+            <div className="flex items-center justify-between p-3 border border-gray-700 rounded-lg bg-gray-800/50">
+              <div>
+                <div className="font-medium text-white">Перезапуск системы</div>
+                <div className="text-sm text-gray-400">
+                  Безопасный перезапуск сервера
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => restartSystemMutation.mutate()}
+                disabled={restartSystemMutation.isPending}
+              >
+                {restartSystemMutation.isPending ? "Перезапуск..." : "Перезапустить"}
+              </Button>
+            </div>
+
+            {/* Очистка кэша */}
+            <div className="flex items-center justify-between p-3 border border-gray-700 rounded-lg bg-gray-800/50">
+              <div>
+                <div className="font-medium text-white">Очистка кэша</div>
+                <div className="text-sm text-gray-400">
+                  Очистить весь системный кэш
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => clearCacheMutation.mutate()}
+                disabled={clearCacheMutation.isPending}
+              >
+                {clearCacheMutation.isPending ? "Очистка..." : "Очистить"}
+              </Button>
+            </div>
+
+            {/* Экспорт конфигурации */}
+            <div className="flex items-center justify-between p-3 border border-gray-700 rounded-lg bg-gray-800/50">
+              <div>
+                <div className="font-medium text-white">Экспорт конфигурации</div>
+                <div className="text-sm text-gray-400">
+                  Скачать файл настроек
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportConfigMutation.mutate()}
+                disabled={exportConfigMutation.isPending}
+              >
+                {exportConfigMutation.isPending ? "Экспорт..." : "Экспорт"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Кнопки действий */}
+      <div className="flex justify-between pt-6 border-t border-gray-800">
+        <Button 
+          variant="outline" 
+          onClick={() => window.location.reload()}
+          className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        >
+          Сбросить изменения
+        </Button>
+        <Button 
+          onClick={handleSaveSettings}
+          disabled={saveSettingsMutation.isPending}
+          className="bg-[#b9ff6a] text-black hover:bg-[#a8ef59]"
+        >
+          {saveSettingsMutation.isPending ? "Сохранение..." : "Сохранить настройки"}
+        </Button>
+      </div>
 
       {/* Информация о версии */}
       <Card className="bg-gray-900/50 border-gray-800">

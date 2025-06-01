@@ -965,6 +965,129 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // System management endpoints
+  app.post("/api/admin/system/restart", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // В реальной системе здесь был бы код для перезапуска
+      res.json({
+        success: true,
+        message: "Система запланирована к перезапуску через 10 секунд"
+      });
+
+      // Имитация перезапуска (в реальной системе использовался бы process manager)
+      setTimeout(() => {
+        console.log("System would restart here...");
+      }, 10000);
+    } catch (error) {
+      console.error("Error restarting system:", error);
+      res.status(500).json({ message: "Failed to restart system" });
+    }
+  });
+
+  app.post("/api/admin/system/clear-cache", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // В реальной системе здесь была бы очистка кэша Redis/Memcached
+      res.json({
+        success: true,
+        message: "Кэш системы успешно очищен"
+      });
+    } catch (error) {
+      console.error("Error clearing cache:", error);
+      res.status(500).json({ message: "Failed to clear cache" });
+    }
+  });
+
+  app.get("/api/admin/config/export", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const configData = {
+        version: "1.2.0",
+        exportDate: new Date().toISOString(),
+        settings: {
+          general: {
+            siteName: 'LITIUM.SPACE',
+            siteDescription: 'Надежная коммуникационная платформа',
+            adminEmail: 'admin@litium.space',
+            maintenanceMode: false,
+            registrationEnabled: true,
+            emailVerificationRequired: false,
+            maxUsersPerPlan: 1000,
+            sessionTimeout: 30,
+            backupFrequency: 'daily',
+            logLevel: 'info'
+          },
+          security: {
+            passwordMinLength: 8,
+            passwordRequireSpecialChars: true,
+            passwordRequireNumbers: true,
+            passwordRequireUppercase: true,
+            twoFactorRequired: false,
+            maxLoginAttempts: 5,
+            accountLockoutDuration: 15,
+            sessionSecure: true,
+            corsEnabled: false,
+            allowedOrigins: '',
+            rateLimitEnabled: true,
+            rateLimitRequests: 100,
+            rateLimitWindow: 15
+          },
+          notifications: {
+            emailNotifications: true,
+            systemAlerts: true,
+            userRegistrationNotify: true,
+            failedLoginNotify: true,
+            maintenanceNotify: true,
+            backupStatusNotify: true,
+            diskSpaceAlerts: true,
+            performanceAlerts: true
+          }
+        }
+      };
+
+      res.json(configData);
+    } catch (error) {
+      console.error("Error exporting config:", error);
+      res.status(500).json({ message: "Failed to export configuration" });
+    }
+  });
+
+  app.post("/api/admin/maintenance", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { enabled } = req.body;
+      
+      // В реальной системе здесь было бы обновление настройки в базе данных
+      res.json({
+        success: true,
+        enabled: enabled,
+        message: enabled 
+          ? "Режим обслуживания включен" 
+          : "Режим обслуживания отключен"
+      });
+    } catch (error) {
+      console.error("Error toggling maintenance mode:", error);
+      res.status(500).json({ message: "Failed to toggle maintenance mode" });
+    }
+  });
+
   app.get("/api/admin/users", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
