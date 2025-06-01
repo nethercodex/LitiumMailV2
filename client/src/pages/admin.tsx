@@ -1,17 +1,26 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut } from "lucide-react";
+import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity, Home, Server, UserCog, MessageSquare, FileText, LogOut, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Fetch admin statistics
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -24,6 +33,48 @@ export default function Admin() {
     queryKey: ["/api/admin/users"],
     enabled: !!user && user.id === 'support' && activeSection === 'users',
   });
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async (userData: any) => {
+      await apiRequest(`/api/admin/users/${userData.id}`, "PATCH", userData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Успешно",
+        description: "Данные пользователя обновлены",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+    },
+    onError: () => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить данные пользователя",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditUser = (userData: any) => {
+    setEditingUser({
+      id: userData.id,
+      username: userData.username,
+      email: userData.email || '',
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      plan: userData.plan,
+      isActive: userData.isActive,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveUser = () => {
+    if (editingUser) {
+      updateUserMutation.mutate(editingUser);
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -227,6 +278,7 @@ export default function Admin() {
                               <th className="text-left py-3 px-4 text-gray-300">План</th>
                               <th className="text-left py-3 px-4 text-gray-300">Статус</th>
                               <th className="text-left py-3 px-4 text-gray-300">Дата регистрации</th>
+                              <th className="text-left py-3 px-4 text-gray-300">Действия</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -266,6 +318,15 @@ export default function Admin() {
                                 </td>
                                 <td className="py-3 px-4 text-gray-400">
                                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString('ru-RU') : 'Не указано'}
+                                </td>
+                                <td className="py-3 px-4">
+                                  <Button
+                                    onClick={() => handleEditUser(user)}
+                                    size="sm"
+                                    className="w-8 h-8 p-0 bg-[#b9ff6a] hover:bg-[#a0e055] text-black"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </Button>
                                 </td>
                               </tr>
                             ))}
@@ -378,6 +439,101 @@ export default function Admin() {
           {renderContent()}
         </div>
       </div>
+
+      {/* Edit User Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-[#b9ff6a]">Редактировать пользователя</DialogTitle>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-gray-300">Имя пользователя</Label>
+                <Input
+                  id="username"
+                  value={editingUser.username}
+                  onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-300">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-gray-300">Имя</Label>
+                <Input
+                  id="firstName"
+                  value={editingUser.firstName}
+                  onChange={(e) => setEditingUser({...editingUser, firstName: e.target.value})}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-gray-300">Фамилия</Label>
+                <Input
+                  id="lastName"
+                  value={editingUser.lastName}
+                  onChange={(e) => setEditingUser({...editingUser, lastName: e.target.value})}
+                  className="bg-gray-800 border-gray-600 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="plan" className="text-gray-300">План</Label>
+                <Select 
+                  value={editingUser.plan} 
+                  onValueChange={(value) => setEditingUser({...editingUser, plan: value})}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-600">
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={editingUser.isActive}
+                  onCheckedChange={(checked) => setEditingUser({...editingUser, isActive: checked})}
+                />
+                <Label htmlFor="isActive" className="text-gray-300">Активный аккаунт</Label>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Отмена
+                </Button>
+                <Button
+                  onClick={handleSaveUser}
+                  disabled={updateUserMutation.isPending}
+                  className="bg-[#b9ff6a] hover:bg-[#a0e055] text-black"
+                >
+                  {updateUserMutation.isPending ? 'Сохранение...' : 'Сохранить'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
