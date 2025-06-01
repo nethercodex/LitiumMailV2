@@ -16,12 +16,19 @@ export default function Security() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Load user sessions
+  const { data: sessions = [], isLoading: sessionsLoading } = useQuery({
+    queryKey: ["/api/sessions"],
+    enabled: !!user,
+  });
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
@@ -40,6 +47,27 @@ export default function Security() {
       toast({
         title: "Ошибка",
         description: error.message || "Не удалось изменить пароль",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Session management mutation
+  const terminateSessionMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
+      return await apiRequest(`/api/sessions/${sessionId}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
+      toast({
+        title: "Сессия завершена",
+        description: "Сессия успешно завершена",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось завершить сессию",
         variant: "destructive",
       });
     },
@@ -389,27 +417,83 @@ export default function Security() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-sm font-medium text-white">Текущий браузер</span>
-                      </div>
-                      <Badge variant="outline" className="bg-green-500/20 text-green-300 border-green-500/40 px-3 py-1">
-                        Активна
-                      </Badge>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-300">Chrome • Россия, Москва</p>
-                      <p className="text-xs text-gray-400">Сегодня в 14:35</p>
+                {sessionsLoading ? (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm animate-pulse">
+                      <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-700 rounded w-1/2"></div>
                     </div>
                   </div>
-                </div>
+                ) : sessions.length > 0 ? (
+                  <div className="space-y-4">
+                    {sessions.map((session: any, index: number) => (
+                      <div key={session.id} className="p-4 bg-gradient-to-r from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/60 backdrop-blur-sm">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full ${session.isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
+                            <span className="text-sm font-medium text-white">
+                              {session.deviceInfo || 'Неизвестное устройство'}
+                              {index === 0 && ' (Текущая сессия)'}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className={`px-3 py-1 ${
+                              session.isActive 
+                                ? 'bg-green-500/20 text-green-300 border-green-500/40'
+                                : 'bg-gray-500/20 text-gray-300 border-gray-500/40'
+                            }`}>
+                              {session.isActive ? 'Активна' : 'Неактивна'}
+                            </Badge>
+                            {index !== 0 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => terminateSessionMutation.mutate(session.id)}
+                                disabled={terminateSessionMutation.isPending}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 px-2"
+                              >
+                                <LogOut className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-300">
+                            {session.deviceInfo || 'Неизвестный браузер'} • {session.location || 'Неизвестное местоположение'}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            Последняя активность: {new Date(session.lastActivity || session.createdAt).toLocaleString('ru-RU', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Shield className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+                    <p className="text-gray-400">Активных сессий не найдено</p>
+                  </div>
+                )}
 
-                <Button variant="outline" className="w-full border-red-500/40 text-red-300 hover:bg-red-500/10 hover:text-red-200 h-12 rounded-xl transition-all duration-200">
-                  Завершить все сессии
-                </Button>
+                {sessions.length > 1 && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-red-500/40 text-red-300 hover:bg-red-500/10 hover:text-red-200 h-12 rounded-xl transition-all duration-200"
+                    onClick={() => {
+                      sessions.slice(1).forEach((session: any) => {
+                        terminateSessionMutation.mutate(session.id);
+                      });
+                    }}
+                    disabled={terminateSessionMutation.isPending}
+                  >
+                    {terminateSessionMutation.isPending ? 'Завершение...' : 'Завершить все остальные сессии'}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
