@@ -33,7 +33,7 @@ export default function Security() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
-      return await apiRequest("/api/auth/change-password", "POST", data);
+      return await apiRequest("POST", "/api/auth/change-password", data);
     },
     onSuccess: () => {
       toast({
@@ -56,7 +56,7 @@ export default function Security() {
   // Session management mutation
   const terminateSessionMutation = useMutation({
     mutationFn: async (sessionId: string) => {
-      return await apiRequest(`/api/sessions/${sessionId}`, "DELETE");
+      return await apiRequest("DELETE", `/api/sessions/${sessionId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/sessions"] });
