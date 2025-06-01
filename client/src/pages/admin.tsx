@@ -120,6 +120,7 @@ export default function Admin() {
     { id: 'dashboard', label: 'Панель управления', icon: BarChart3 },
     { id: 'users', label: 'Пользователи', icon: Users },
     { id: 'emails', label: 'Почтовая система', icon: Mail },
+    { id: 'mail-server', label: 'Настройки сервера', icon: Server },
     { id: 'settings', label: 'Настройки', icon: Settings },
     { id: 'database', label: 'База данных', icon: Database },
     { id: 'monitoring', label: 'Мониторинг', icon: Activity },
@@ -362,6 +363,9 @@ export default function Admin() {
             </Card>
           </div>
         );
+      
+      case 'mail-server':
+        return <MailServerSettings />;
       
       default:
         return (
@@ -610,6 +614,293 @@ export default function Admin() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+// Компонент для управления настройками почтового сервера
+function MailServerSettings() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    smtpHost: '',
+    smtpPort: 587,
+    smtpSecure: true,
+    smtpUser: '',
+    smtpPassword: '',
+    imapHost: '',
+    imapPort: 993,
+    imapSecure: true,
+    domain: 'litium.space'
+  });
+
+  // Загружаем текущие настройки
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ['/api/admin/mail-settings'],
+  });
+
+  // Обновляем форму при загрузке настроек
+  useEffect(() => {
+    if (settings) {
+      setFormData({
+        smtpHost: settings.smtpHost || '',
+        smtpPort: settings.smtpPort || 587,
+        smtpSecure: settings.smtpSecure !== false,
+        smtpUser: settings.smtpUser || '',
+        smtpPassword: settings.smtpPassword === '••••••••' ? '' : settings.smtpPassword || '',
+        imapHost: settings.imapHost || '',
+        imapPort: settings.imapPort || 993,
+        imapSecure: settings.imapSecure !== false,
+        domain: settings.domain || 'litium.space'
+      });
+    }
+  }, [settings]);
+
+  // Мутация для сохранения настроек
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest('/api/admin/mail-settings', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Настройки сохранены",
+        description: "Настройки почтового сервера успешно обновлены",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/mail-settings'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Ошибка",
+        description: error.message || "Не удалось сохранить настройки",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.smtpHost || !formData.smtpUser || !formData.imapHost || !formData.domain) {
+      toast({
+        title: "Ошибка валидации",
+        description: "Заполните все обязательные поля",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    saveSettingsMutation.mutate(formData);
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold text-white mb-2">Настройки почтового сервера</h2>
+          <p className="text-gray-400">Настройка SMTP и IMAP серверов для системы LITIUM.SPACE</p>
+        </div>
+        <Card className="bg-black/40 border-gray-800">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center py-8">
+              <div className="w-8 h-8 border-2 border-[#b9ff6a] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold text-white mb-2">Настройки почтового сервера</h2>
+        <p className="text-gray-400">Настройка SMTP и IMAP серверов для системы LITIUM.SPACE</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* SMTP Settings */}
+        <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+          <CardHeader>
+            <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              Настройки SMTP (Исходящая почта)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="smtpHost" className="text-gray-300">
+                  SMTP Сервер *
+                </Label>
+                <Input
+                  id="smtpHost"
+                  type="text"
+                  value={formData.smtpHost}
+                  onChange={(e) => handleInputChange('smtpHost', e.target.value)}
+                  placeholder="smtp.gmail.com"
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="smtpPort" className="text-gray-300">
+                  SMTP Порт
+                </Label>
+                <Input
+                  id="smtpPort"
+                  type="number"
+                  value={formData.smtpPort}
+                  onChange={(e) => handleInputChange('smtpPort', parseInt(e.target.value) || 587)}
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="smtpUser" className="text-gray-300">
+                  SMTP Пользователь *
+                </Label>
+                <Input
+                  id="smtpUser"
+                  type="text"
+                  value={formData.smtpUser}
+                  onChange={(e) => handleInputChange('smtpUser', e.target.value)}
+                  placeholder="your-email@gmail.com"
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="smtpPassword" className="text-gray-300">
+                  SMTP Пароль *
+                </Label>
+                <Input
+                  id="smtpPassword"
+                  type="password"
+                  value={formData.smtpPassword}
+                  onChange={(e) => handleInputChange('smtpPassword', e.target.value)}
+                  placeholder={settings?.smtpPassword === '••••••••' ? 'Не изменять' : 'Введите пароль'}
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="smtpSecure"
+                checked={formData.smtpSecure}
+                onCheckedChange={(checked) => handleInputChange('smtpSecure', checked)}
+              />
+              <Label htmlFor="smtpSecure" className="text-gray-300">
+                Использовать SSL/TLS для SMTP
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* IMAP Settings */}
+        <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+          <CardHeader>
+            <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Настройки IMAP (Входящая почта)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="imapHost" className="text-gray-300">
+                  IMAP Сервер *
+                </Label>
+                <Input
+                  id="imapHost"
+                  type="text"
+                  value={formData.imapHost}
+                  onChange={(e) => handleInputChange('imapHost', e.target.value)}
+                  placeholder="imap.gmail.com"
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imapPort" className="text-gray-300">
+                  IMAP Порт
+                </Label>
+                <Input
+                  id="imapPort"
+                  type="number"
+                  value={formData.imapPort}
+                  onChange={(e) => handleInputChange('imapPort', parseInt(e.target.value) || 993)}
+                  className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="imapSecure"
+                checked={formData.imapSecure}
+                onCheckedChange={(checked) => handleInputChange('imapSecure', checked)}
+              />
+              <Label htmlFor="imapSecure" className="text-gray-300">
+                Использовать SSL/TLS для IMAP
+              </Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Domain Settings */}
+        <Card className="bg-black/40 border-gray-800 hover:border-[#b9ff6a]/30 transition-colors">
+          <CardHeader>
+            <CardTitle className="text-[#b9ff6a] flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Настройки домена
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="domain" className="text-gray-300">
+                Домен почтового сервиса *
+              </Label>
+              <Input
+                id="domain"
+                type="text"
+                value={formData.domain}
+                onChange={(e) => handleInputChange('domain', e.target.value)}
+                placeholder="litium.space"
+                className="bg-gray-900/50 border-gray-700 text-white focus:border-[#b9ff6a]"
+              />
+              <p className="text-sm text-gray-500">
+                Все новые email адреса будут создаваться в формате username@{formData.domain}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={saveSettingsMutation.isPending}
+            className="bg-[#b9ff6a] hover:bg-[#a0e055] text-black font-medium px-8 shadow-lg shadow-[#b9ff6a]/20"
+          >
+            {saveSettingsMutation.isPending ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                Сохранение...
+              </div>
+            ) : (
+              'Сохранить настройки'
+            )}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
