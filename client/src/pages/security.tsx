@@ -1,17 +1,19 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Link } from "wouter";
+import { Separator } from "@/components/ui/separator";
+import { useLocation } from "wouter";
 
 export default function Security() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,12 +34,12 @@ export default function Security() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-dark text-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center">
         <div className="text-center fade-in">
-          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4 mx-auto pulse-glow">
-            <Shield className="text-dark h-6 w-6" />
+          <div className="w-16 h-16 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-xl flex items-center justify-center mb-6 mx-auto shadow-lg shadow-[#b9ff6a]/20 animate-pulse">
+            <Shield className="text-black h-8 w-8" />
           </div>
-          <p className="text-text-muted">Загрузка настроек безопасности...</p>
+          <p className="text-gray-400 text-lg">Загрузка настроек безопасности...</p>
         </div>
       </div>
     );
@@ -46,125 +48,148 @@ export default function Security() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-dark text-white">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       {/* Header */}
-      <header className="border-b border-surface bg-surface/50 backdrop-blur-sm">
+      <header className="border-b border-gray-800/60 bg-black/40 backdrop-blur-lg">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button variant="ghost" size="icon" className="hover:bg-surface/50">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hover:bg-[#b9ff6a]/10 hover:text-[#b9ff6a] transition-colors"
+              onClick={() => setLocation('/')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Mail className="text-dark h-4 w-4" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                <Mail className="text-black h-5 w-5" />
               </div>
-              <span className="text-xl font-bold text-primary">LITIUM.SPACE</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] bg-clip-text text-transparent">LITIUM.SPACE</span>
             </div>
           </div>
-          <h1 className="text-lg font-semibold text-white">Безопасность</h1>
+          <div className="flex items-center space-x-3">
+            <Shield className="h-6 w-6 text-[#b9ff6a]" />
+            <h1 className="text-xl font-semibold text-white">Безопасность</h1>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 max-w-4xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-6 py-10 max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Смена пароля */}
           <div className="lg:col-span-2">
-            <Card className="bg-surface border-surface-lighter">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
-                  <Lock className="w-5 h-5 text-primary" />
+            <Card className="bg-black/40 border-gray-800/60 backdrop-blur-lg shadow-xl shadow-black/20">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center space-x-3 text-white text-xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#b9ff6a] to-[#a8e659] rounded-lg flex items-center justify-center shadow-lg shadow-[#b9ff6a]/20">
+                    <Lock className="w-5 h-5 text-black" />
+                  </div>
                   <span>Смена пароля</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword" className="text-white text-sm">Текущий пароль</Label>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="currentPassword" className="text-gray-200 text-sm font-medium">Текущий пароль</Label>
                   <div className="relative">
                     <Input
                       id="currentPassword"
                       type={showCurrentPassword ? "text" : "password"}
                       placeholder="Введите текущий пароль"
-                      className="bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-10"
+                      className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 hover:bg-transparent"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-[#b9ff6a]/10 hover:text-[#b9ff6a] transition-colors"
                       onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                     >
                       {showCurrentPassword ? (
-                        <EyeOff className="h-4 w-4 text-white/50" />
+                        <EyeOff className="h-4 w-4 text-gray-400" />
                       ) : (
-                        <Eye className="h-4 w-4 text-white/50" />
+                        <Eye className="h-4 w-4 text-gray-400" />
                       )}
                     </Button>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword" className="text-white text-sm">Новый пароль</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="newPassword" className="text-gray-200 text-sm font-medium">Новый пароль</Label>
                   <div className="relative">
                     <Input
                       id="newPassword"
                       type={showNewPassword ? "text" : "password"}
                       placeholder="Создайте новый пароль"
-                      className="bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-10"
+                      className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 hover:bg-transparent"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-[#b9ff6a]/10 hover:text-[#b9ff6a] transition-colors"
                       onClick={() => setShowNewPassword(!showNewPassword)}
                     >
                       {showNewPassword ? (
-                        <EyeOff className="h-4 w-4 text-white/50" />
+                        <EyeOff className="h-4 w-4 text-gray-400" />
                       ) : (
-                        <Eye className="h-4 w-4 text-white/50" />
+                        <Eye className="h-4 w-4 text-gray-400" />
                       )}
                     </Button>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-white text-sm">Подтвердите новый пароль</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="confirmPassword" className="text-gray-200 text-sm font-medium">Подтвердите новый пароль</Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Повторите новый пароль"
-                      className="bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-10"
+                      className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 hover:bg-transparent"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 hover:bg-[#b9ff6a]/10 hover:text-[#b9ff6a] transition-colors"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-white/50" />
+                        <EyeOff className="h-4 w-4 text-gray-400" />
                       ) : (
-                        <Eye className="h-4 w-4 text-white/50" />
+                        <Eye className="h-4 w-4 text-gray-400" />
                       )}
                     </Button>
                   </div>
                 </div>
 
-                <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-primary font-medium mb-2">Требования к паролю:</p>
-                  <ul className="text-xs text-text-muted space-y-1">
-                    <li>• Минимум 8 символов</li>
-                    <li>• Содержит заглавные и строчные буквы</li>
-                    <li>• Содержит цифры</li>
-                    <li>• Содержит специальные символы</li>
+                <div className="p-4 bg-gradient-to-r from-[#b9ff6a]/10 to-[#a8e659]/10 border border-[#b9ff6a]/20 rounded-xl backdrop-blur-sm">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <CheckCircle className="h-5 w-5 text-[#b9ff6a]" />
+                    <p className="text-sm text-[#b9ff6a] font-medium">Требования к паролю:</p>
+                  </div>
+                  <ul className="text-xs text-gray-300 space-y-1.5">
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-[#b9ff6a] rounded-full"></div>
+                      <span>Минимум 8 символов</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-[#b9ff6a] rounded-full"></div>
+                      <span>Содержит заглавные и строчные буквы</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-[#b9ff6a] rounded-full"></div>
+                      <span>Содержит цифры</span>
+                    </li>
+                    <li className="flex items-center space-x-2">
+                      <div className="w-1.5 h-1.5 bg-[#b9ff6a] rounded-full"></div>
+                      <span>Содержит специальные символы</span>
+                    </li>
                   </ul>
                 </div>
 
-                <Button className="w-full bg-primary text-dark hover:bg-primary/90 font-medium">
+                <Button className="w-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#97d548] font-semibold h-12 rounded-xl shadow-lg shadow-[#b9ff6a]/20 transition-all duration-200">
                   Обновить пароль
                 </Button>
               </CardContent>
