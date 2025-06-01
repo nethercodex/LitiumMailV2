@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarDays, Mail, User, Package, CheckCircle, XCircle, Settings, Edit } from "lucide-react";
+import { CalendarDays, Mail, User, Package, CheckCircle, XCircle, Settings, Edit, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 import { format, isValid } from "date-fns";
 import { ru } from "date-fns/locale";
 import { getPlanDisplayName } from "@shared/plans";
@@ -18,6 +19,7 @@ export default function Profile() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   // Redirect to home if not authenticated
@@ -94,8 +96,21 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
+      {/* Back Button */}
+      <div className="relative z-10 p-6">
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-[#b9ff6a]/30 text-white hover:bg-[#b9ff6a]/10 hover:border-[#b9ff6a]/50"
+          onClick={() => setLocation('/')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Назад
+        </Button>
+      </div>
+
       {/* Hero Section with Avatar */}
-      <div className="relative bg-gradient-to-r from-black/50 via-gray-900/30 to-black/50 backdrop-blur-sm border-b border-[#b9ff6a]/20">
+      <div className="relative bg-gradient-to-r from-black/50 via-gray-900/30 to-black/50 backdrop-blur-sm border-b border-[#b9ff6a]/20 -mt-20 pt-20">
         <div className="absolute inset-0 bg-gradient-to-br from-[#b9ff6a]/5 via-transparent to-[#b9ff6a]/5"></div>
         <div className="relative max-w-6xl mx-auto px-6 py-16">
           <div className="flex flex-col md:flex-row items-center gap-8">
