@@ -367,10 +367,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </Label>
                         <Input
                           id="email"
-                          type="email"
-                          placeholder="ivan@example.com"
+                          type="text"
+                          placeholder="username (только английские буквы и цифры, до 20 символов)"
                           {...registerForm.register("email")}
                           className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
+                          maxLength={20}
                         />
                         {registerForm.formState.errors.email && (
                           <p className="text-sm text-red-400 flex items-center gap-2">
