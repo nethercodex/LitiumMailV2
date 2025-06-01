@@ -163,19 +163,19 @@ export default function EmailViewer({ emailId, onClose }: EmailViewerProps) {
                   
                   <div className="text-right">
                     <p className="text-sm text-text-muted">
-                      {formatDistanceToNow(new Date(email.createdAt), { 
+                      {email.sentAt ? formatDistanceToNow(new Date(email.sentAt), { 
                         addSuffix: true, 
                         locale: ru 
-                      })}
+                      }) : 'Недавно'}
                     </p>
                     <p className="text-xs text-text-muted">
-                      {new Date(email.createdAt).toLocaleDateString('ru-RU', {
+                      {email.sentAt ? new Date(email.sentAt).toLocaleDateString('ru-RU', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit'
-                      })}
+                      }) : 'Недавно'}
                     </p>
                   </div>
                 </div>
