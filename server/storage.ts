@@ -18,20 +18,20 @@ import { eq, desc, and, or, like } from "drizzle-orm";
 // Interface for storage operations
 export interface IStorage {
   // User operations
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(userData: RegisterData): Promise<User>;
   validateUser(username: string, password: string): Promise<User | undefined>;
   
   // Email operations
-  sendEmail(fromUserId: number, email: InsertEmail): Promise<Email>;
-  getInboxEmails(userId: number): Promise<EmailWithDetails[]>;
-  getSentEmails(userId: number): Promise<EmailWithSender[]>;
-  getEmailById(emailId: number, userId: number): Promise<EmailWithSender | undefined>;
-  markEmailAsRead(emailId: number, userId: number): Promise<void>;
-  deleteEmail(emailId: number, userId: number): Promise<void>;
-  searchEmails(userId: number, query: string): Promise<EmailWithDetails[]>;
+  sendEmail(fromUserId: string, email: InsertEmail): Promise<Email>;
+  getInboxEmails(userId: string): Promise<EmailWithDetails[]>;
+  getSentEmails(userId: string): Promise<EmailWithSender[]>;
+  getEmailById(emailId: number, userId: string): Promise<EmailWithSender | undefined>;
+  markEmailAsRead(emailId: number, userId: string): Promise<void>;
+  deleteEmail(emailId: number, userId: string): Promise<void>;
+  searchEmails(userId: string, query: string): Promise<EmailWithDetails[]>;
 }
 
 export class DatabaseStorage implements IStorage {

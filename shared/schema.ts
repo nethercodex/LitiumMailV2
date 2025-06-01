@@ -26,12 +26,13 @@ export const sessions = pgTable(
 
 // User storage table.
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: varchar("id").primaryKey(),
   username: varchar("username", { length: 255 }).unique().notNull(), // username without @litium.space
   email: varchar("email", { length: 255 }).unique().notNull(), // full email with @litium.space
   password: varchar("password", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 255 }),
   lastName: varchar("last_name", { length: 255 }),
+  profileImageUrl: varchar("profile_image_url"),
   plan: varchar("plan", { length: 50 }).default("basic").notNull(), // basic, pro, enterprise
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -41,11 +42,12 @@ export const users = pgTable("users", {
 // Email messages table
 export const emails = pgTable("emails", {
   id: serial("id").primaryKey(),
-  fromUserId: serial("from_user_id").notNull(),
+  fromUserId: varchar("from_user_id").notNull().references(() => users.id),
   toEmail: varchar("to_email").notNull(),
   subject: text("subject").notNull(),
   body: text("body").notNull(),
   isRead: boolean("is_read").default(false).notNull(),
+  sentAt: timestamp("sent_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
