@@ -36,6 +36,13 @@ export interface IStorage {
   deleteEmail(emailId: number, userId: string): Promise<void>;
   searchEmails(userId: string, query: string): Promise<EmailWithDetails[]>;
   
+  // Session operations
+  createSession(sessionData: InsertUserSession): Promise<UserSession>;
+  getUserSessions(userId: string): Promise<UserSession[]>;
+  updateSessionActivity(sessionId: string): Promise<void>;
+  deactivateSession(sessionId: string): Promise<void>;
+  deactivateAllUserSessions(userId: string): Promise<void>;
+  
   // Admin methods
   getAllUsers(): Promise<User[]>;
   updateUser(userId: string, userData: Partial<User>): Promise<User>;
@@ -281,6 +288,44 @@ export class DatabaseStorage implements IStorage {
       ...row,
       isRead: row.isRead || false,
     }));
+  }
+
+  // Session operations
+  async createSession(sessionData: InsertUserSession): Promise<UserSession> {
+    const [session] = await db
+      .insert(userSessions)
+      .values(sessionData)
+      .returning();
+    return session;
+  }
+
+  async getUserSessions(userId: string): Promise<UserSession[]> {
+    return await db
+      .select()
+      .from(userSessions)
+      .where(and(eq(userSessions.userId, userId), eq(userSessions.isActive, true)))
+      .orderBy(desc(userSessions.lastActivity));
+  }
+
+  async updateSessionActivity(sessionId: string): Promise<void> {
+    await db
+      .update(userSessions)
+      .set({ lastActivity: new Date() })
+      .where(eq(userSessions.sessionId, sessionId));
+  }
+
+  async deactivateSession(sessionId: string): Promise<void> {
+    await db
+      .update(userSessions)
+      .set({ isActive: false })
+      .where(eq(userSessions.sessionId, sessionId));
+  }
+
+  async deactivateAllUserSessions(userId: string): Promise<void> {
+    await db
+      .update(userSessions)
+      .set({ isActive: false })
+      .where(eq(userSessions.userId, userId));
   }
 
   // Admin methods

@@ -1,7 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Mail, Shield, Lock, Key, Phone, ArrowLeft, Eye, EyeOff, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,7 @@ export default function Security() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
-      return await apiRequest("/api/auth/change-password", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-      });
+      return await apiRequest("/api/auth/change-password", "POST", data);
     },
     onSuccess: () => {
       toast({
