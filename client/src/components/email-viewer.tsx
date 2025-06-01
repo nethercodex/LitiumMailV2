@@ -118,10 +118,10 @@ export default function EmailViewer({ emailId, onClose }: EmailViewerProps) {
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" disabled>
+            <Button variant="ghost" size="icon" disabled className="btn-hover-scale">
               <Reply className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" disabled>
+            <Button variant="ghost" size="icon" disabled className="btn-hover-scale">
               <Archive className="h-4 w-4" />
             </Button>
             <Button 
@@ -129,6 +129,7 @@ export default function EmailViewer({ emailId, onClose }: EmailViewerProps) {
               size="icon"
               onClick={() => deleteEmailMutation.mutate()}
               disabled={deleteEmailMutation.isPending}
+              className="btn-hover-scale hover:text-red-400"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

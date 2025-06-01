@@ -71,8 +71,8 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-dark text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4 mx-auto animate-pulse">
+        <div className="text-center fade-in">
+          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center mb-4 mx-auto pulse-glow">
             <Mail className="text-dark h-6 w-6" />
           </div>
           <p className="text-text-muted">Загрузка...</p>
@@ -107,7 +107,7 @@ export default function Home() {
 
           <div className="flex items-center space-x-4">
             <Link href="/compose">
-              <Button className="bg-primary text-dark hover:bg-primary/80">
+              <Button className="bg-primary text-dark hover:bg-primary/80 btn-hover-lift glow-primary">
                 <Plus className="mr-2 h-4 w-4" />
                 Написать
               </Button>
@@ -117,7 +117,7 @@ export default function Home() {
               <span className="text-sm text-text-muted">
                 {user?.firstName || user?.email}
               </span>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <Button variant="ghost" size="icon" onClick={handleLogout} className="btn-hover-scale">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>

@@ -195,7 +195,7 @@ export default function Compose() {
                     type="button"
                     variant="outline"
                     onClick={handleBack}
-                    className="border-surface-lighter"
+                    className="border-surface-lighter btn-hover-scale glow-subtle"
                   >
                     Отмена
                   </Button>
@@ -203,7 +203,7 @@ export default function Compose() {
                   <Button
                     type="submit"
                     disabled={sendEmailMutation.isPending}
-                    className="bg-primary text-dark hover:bg-primary/80"
+                    className="bg-primary text-dark hover:bg-primary/80 btn-hover-lift glow-primary"
                   >
                     {sendEmailMutation.isPending ? (
                       <>

@@ -54,7 +54,7 @@ export default function EmailList({ emails, selectedEmailId, onEmailSelect, isLo
               key={email.id}
               variant="ghost"
               className={cn(
-                "w-full p-3 h-auto justify-start text-left mb-2 rounded-lg transition-all duration-200",
+                "w-full p-3 h-auto justify-start text-left mb-2 rounded-lg btn-hover-scale glow-subtle",
                 isSelected && "bg-primary/10 border border-primary/20",
                 isUnread && !isSelected && "bg-surface/50",
                 !isUnread && !isSelected && "hover:bg-surface/30"

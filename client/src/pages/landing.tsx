@@ -61,13 +61,13 @@ export default function Landing() {
             <div className="flex items-center space-x-4">
               <Button 
                 variant="ghost" 
-                className="hidden sm:flex text-text-muted hover:text-white"
+                className="hidden sm:flex text-text-muted hover:text-white btn-hover-scale"
                 onClick={handleLogin}
               >
                 Войти
               </Button>
               <Button 
-                className="bg-primary text-dark font-medium hover:bg-primary/80 transition-all duration-200 transform hover:scale-105"
+                className="bg-primary text-dark font-medium hover:bg-primary/80 btn-hover-lift glow-primary"
                 onClick={handleSignup}
               >
                 Создать почту
@@ -106,7 +106,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Button 
               size="lg"
-              className="w-full sm:w-auto px-8 py-4 bg-primary text-dark font-semibold hover:bg-primary/80 transition-all duration-200 transform hover:scale-105 shadow-lg shadow-primary/25"
+              className="w-full sm:w-auto px-8 py-4 bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary shadow-lg shadow-primary/25"
               onClick={handleSignup}
             >
               <Layers className="mr-2 h-4 w-4" />
@@ -115,7 +115,7 @@ export default function Landing() {
             <Button 
               size="lg"
               variant="outline"
-              className="w-full sm:w-auto px-8 py-4 border-surface-lighter text-white hover:bg-surface"
+              className="w-full sm:w-auto px-8 py-4 border-surface-lighter text-white hover:bg-surface btn-hover-scale glow-subtle"
             >
               <div className="mr-2 h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
@@ -125,9 +125,9 @@ export default function Landing() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter hover:border-primary/20 transition-all duration-300">
+            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter card-hover glow-subtle fade-in">
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto btn-hover-scale">
                   <Lock className="text-primary h-6 w-6" />
                 </div>
                 <h3 className="font-semibold mb-2">Шифрование E2E</h3>
@@ -135,9 +135,9 @@ export default function Landing() {
               </CardContent>
             </Card>
             
-            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter hover:border-primary/20 transition-all duration-300">
+            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter card-hover glow-subtle fade-in" style={{animationDelay: '0.1s'}}>
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto btn-hover-scale">
                   <Zap className="text-primary h-6 w-6" />
                 </div>
                 <h3 className="font-semibold mb-2">Молниеносная скорость</h3>
@@ -145,9 +145,9 @@ export default function Landing() {
               </CardContent>
             </Card>
             
-            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter hover:border-primary/20 transition-all duration-300">
+            <Card className="bg-surface/50 backdrop-blur-sm border-surface-lighter card-hover glow-subtle fade-in" style={{animationDelay: '0.2s'}}>
               <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4 mx-auto btn-hover-scale">
                   <Smartphone className="text-primary h-6 w-6" />
                 </div>
                 <h3 className="font-semibold mb-2">Кроссплатформенность</h3>

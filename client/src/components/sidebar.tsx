@@ -22,8 +22,8 @@ export default function Sidebar({ currentView, onViewChange, onEmailSelect }: Si
           <Button
             variant="ghost"
             className={cn(
-              "w-full justify-start",
-              currentView === 'inbox' && "bg-primary/10 text-primary hover:bg-primary/20"
+              "w-full justify-start btn-hover-scale",
+              currentView === 'inbox' && "bg-primary/10 text-primary hover:bg-primary/20 glow-subtle"
             )}
             onClick={() => handleViewChange('inbox')}
           >
@@ -34,8 +34,8 @@ export default function Sidebar({ currentView, onViewChange, onEmailSelect }: Si
           <Button
             variant="ghost"
             className={cn(
-              "w-full justify-start",
-              currentView === 'sent' && "bg-primary/10 text-primary hover:bg-primary/20"
+              "w-full justify-start btn-hover-scale",
+              currentView === 'sent' && "bg-primary/10 text-primary hover:bg-primary/20 glow-subtle"
             )}
             onClick={() => handleViewChange('sent')}
           >
