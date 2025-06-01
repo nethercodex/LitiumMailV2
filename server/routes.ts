@@ -202,6 +202,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Статические файлы для аватаров
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+  // Email routes
+  app.post('/api/emails/send', requireAuth, async (req: any, res) => {
+    try {
+      const { toEmail, subject, body } = req.body;
+      const fromUserId = req.user.id;
+      
+      if (!toEmail || !subject || !body) {
+        return res.status(400).json({ message: "Заполните все поля" });
+      }
+
+      // Отправляем письмо через собственный SMTP сервер
+      const email = await storage.sendEmail(fromUserId, { toEmail, subject, body });
+      
+      // Также отправляем через SMTP сервер для доставки
+      try {
+        const senderUser = await storage.getUser(fromUserId);
+        const fromEmail = `${senderUser?.username}@litium.space`;
+        await mailServer.sendEmail(fromEmail, toEmail, subject, body);
+      } catch (smtpError) {
+        console.error("SMTP delivery error:", smtpError);
+        // Не прерываем операцию, письмо уже сохранено в базе
+      }
+
+      res.json({ message: "Письмо отправлено", email });
+    } catch (error) {
+      console.error("Send email error:", error);
+      res.status(500).json({ message: "Ошибка отправки письма" });
+    }
+  });
+
+  app.get('/api/emails/inbox', requireAuth, async (req: any, res) => {
+    try {
+      const emails = await storage.getInboxEmails(req.user.id);
+      res.json(emails);
+    } catch (error) {
+      console.error("Get inbox error:", error);
+      res.status(500).json({ message: "Failed to get inbox" });
+    }
+  });
+
+  app.get('/api/emails/sent', requireAuth, async (req: any, res) => {
+    try {
+      const emails = await storage.getSentEmails(req.user.id);
+      res.json(emails);
+    } catch (error) {
+      console.error("Get sent error:", error);
+      res.status(500).json({ message: "Failed to get sent emails" });
+    }
+  });
+
+  app.get('/api/emails/:id', requireAuth, async (req: any, res) => {
+    try {
+      const emailId = parseInt(req.params.id);
+      const email = await storage.getEmailById(emailId, req.user.id);
+      if (!email) {
+        return res.status(404).json({ message: "Email not found" });
+      }
+      res.json(email);
+    } catch (error) {
+      console.error("Get email error:", error);
+      res.status(500).json({ message: "Failed to get email" });
+    }
+  });
+
+  app.put("/api/emails/:id/read", requireAuth, async (req: any, res) => {
+    try {
+      const emailId = parseInt(req.params.id);
+      await storage.markEmailAsRead(emailId, req.user.id);
+      res.json({ message: "Email marked as read" });
+    } catch (error) {
+      console.error("Mark read error:", error);
+      res.status(500).json({ message: "Failed to mark as read" });
+    }
+  });
+
+  app.delete("/api/emails/:id", requireAuth, async (req: any, res) => {
+    try {
+      const emailId = parseInt(req.params.id);
+      await storage.deleteEmail(emailId, req.user.id);
+      res.json({ message: "Email deleted" });
+    } catch (error) {
+      console.error("Delete email error:", error);
+      res.status(500).json({ message: "Failed to delete email" });
+    }
+  });
+
+  app.get("/api/emails/search/:query", requireAuth, async (req: any, res) => {
+    try {
+      const query = req.params.query;
+      const emails = await storage.searchEmails(req.user.id, query);
+      res.json(emails);
+    } catch (error) {
+      console.error("Search emails error:", error);
+      res.status(500).json({ message: "Failed to search emails" });
+    }
+  });
+
   // Sessions routes
   app.get('/api/sessions', requireAuth, async (req: any, res) => {
     try {
