@@ -9,6 +9,7 @@ import fs from "fs";
 import express from "express";
 import { storage } from "./storage";
 import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
+import { mailServer } from "./mailServer";
 import { db } from "./db";
 import { users } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -489,6 +490,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API эндпоинты для управления собственным почтовым сервером
+  app.get("/api/admin/mail-server/status", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const status = mailServer.getStatus();
+      res.json(status);
+    } catch (error) {
+      console.error("Error getting mail server status:", error);
+      res.status(500).json({ message: "Failed to get mail server status" });
+    }
+  });
+
+  app.post("/api/admin/mail-server/start", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { port } = req.body;
+      await mailServer.start(port || 2525); // Используем порт 2525 для разработки
+      
+      res.json({ 
+        message: "Mail server started successfully",
+        status: mailServer.getStatus()
+      });
+    } catch (error) {
+      console.error("Error starting mail server:", error);
+      res.status(500).json({ message: "Failed to start mail server" });
+    }
+  });
+
+  app.post("/api/admin/mail-server/stop", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await mailServer.stop();
+      
+      res.json({ 
+        message: "Mail server stopped successfully",
+        status: mailServer.getStatus()
+      });
+    } catch (error) {
+      console.error("Error stopping mail server:", error);
+      res.status(500).json({ message: "Failed to stop mail server" });
+    }
+  });
+
+  app.post("/api/admin/mail-server/send", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { from, to, subject, body } = req.body;
+      
+      if (!from || !to || !subject || !body) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      await mailServer.sendEmail(from, to, subject, body);
+      
+      res.json({ message: "Email sent successfully via LITIUM Mail Server" });
+    } catch (error) {
+      console.error("Error sending email via mail server:", error);
+      res.status(500).json({ message: "Failed to send email" });
+    }
+  });
+
   const httpServer = createServer(app);
+  
+  // Автоматически запускаем почтовый сервер при старте приложения
+  mailServer.start(2525).catch(error => {
+    console.error("Failed to start mail server on startup:", error);
+  });
+  
   return httpServer;
 }
