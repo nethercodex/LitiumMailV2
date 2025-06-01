@@ -141,7 +141,7 @@ export default function Home() {
                     <span>Безопасность</span>
                   </DropdownMenuItem>
                 </Link>
-                {(user?.role === 'admin' || user?.role === 'support') && (
+                {user?.id === 'support' && (
                   <Link href="/admin">
                     <DropdownMenuItem className="flex items-center space-x-3 px-3 py-2 cursor-pointer hover:bg-[#b9ff6a]/10 focus:bg-[#b9ff6a]/10 text-white">
                       <Settings className="w-4 h-4 text-[#b9ff6a]" />
