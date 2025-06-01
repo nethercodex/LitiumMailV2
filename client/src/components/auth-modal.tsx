@@ -331,10 +331,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="username" className="text-white flex items-center gap-3 text-sm font-medium">
-                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
-                            <User className="w-4 h-4 text-[#b9ff6a]" />
+                      <div className="space-y-2">
+                        <Label htmlFor="username" className="text-white flex items-center gap-2 text-sm font-medium">
+                          <div className="w-6 h-6 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
+                            <User className="w-3 h-3 text-[#b9ff6a]" />
                           </div>
                           Имя пользователя
                         </Label>
@@ -342,11 +342,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           id="username"
                           placeholder="username"
                           {...registerForm.register("username")}
-                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                          className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                         />
-                        <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-800/30 p-3 rounded-lg border border-gray-700">
-                          <Mail className="w-4 h-4 text-[#b9ff6a]" />
-                          Ваш email будет: <span className="text-[#b9ff6a] font-semibold">{registerForm.watch("username") || "username"}@litium.space</span>
+                        <div className="flex items-center gap-2 text-xs text-white/60 bg-black/30 p-2 rounded-lg border border-[#b9ff6a]/20">
+                          <Mail className="w-3 h-3 text-[#b9ff6a]" />
+                          Ваш email: <span className="text-[#b9ff6a] font-semibold">{registerForm.watch("username") || "username"}@litium.space</span>
                         </div>
                         {registerForm.formState.errors.username && (
                           <p className="text-sm text-red-400 flex items-center gap-2">
@@ -358,10 +358,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         )}
                       </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="email" className="text-white flex items-center gap-3 text-sm font-medium">
-                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
-                            <Mail className="w-4 h-4 text-[#b9ff6a]" />
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-white flex items-center gap-2 text-sm font-medium">
+                          <div className="w-6 h-6 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
+                            <Mail className="w-3 h-3 text-[#b9ff6a]" />
                           </div>
                           Email для связи
                         </Label>
@@ -370,7 +370,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           type="email"
                           placeholder="ivan@example.com"
                           {...registerForm.register("email")}
-                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                          className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                         />
                         {registerForm.formState.errors.email && (
                           <p className="text-sm text-red-400 flex items-center gap-2">
@@ -382,10 +382,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         )}
                       </div>
 
-                      <div className="space-y-3">
-                        <Label htmlFor="password" className="text-white flex items-center gap-3 text-sm font-medium">
-                          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
-                            <Lock className="w-4 h-4 text-[#b9ff6a]" />
+                      <div className="space-y-2">
+                        <Label htmlFor="password" className="text-white flex items-center gap-2 text-sm font-medium">
+                          <div className="w-6 h-6 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
+                            <Lock className="w-3 h-3 text-[#b9ff6a]" />
                           </div>
                           Пароль
                         </Label>
@@ -394,7 +394,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           type="password"
                           placeholder="Создайте надежный пароль"
                           {...registerForm.register("password")}
-                          className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                          className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                         />
                         {registerForm.formState.errors.password && (
                           <p className="text-sm text-red-400 flex items-center gap-2">
@@ -408,7 +408,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                       <Button 
                         type="submit" 
-                        className="w-full h-12 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] hover:from-[#a8e85c] hover:to-[#7dd142] text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                        className="w-full h-9 bg-[#b9ff6a] hover:bg-[#b9ff6a]/90 text-black font-bold text-sm rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                         disabled={registerMutation.isPending}
                       >
                         {registerMutation.isPending ? (
@@ -441,41 +441,41 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
 
               {/* Тарифные планы */}
-              <div className="xl:col-span-2 space-y-6">
+              <div className="xl:col-span-2 space-y-3">
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-3">Выберите тариф</h3>
-                  <p className="text-gray-400 text-lg">Начните бесплатно, обновляйтесь по мере роста</p>
+                  <h3 className="text-lg font-bold text-white mb-1">Выберите тариф</h3>
+                  <p className="text-white/60 text-sm">Начните бесплатно, обновляйтесь по мере роста</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {plans.map((plan) => (
                     <Card 
                       key={plan.id}
-                      className={`relative cursor-pointer transition-all duration-300 border-2 transform hover:scale-105 ${
+                      className={`relative cursor-pointer transition-all duration-300 border-2 ${
                         registerForm.watch("plan") === plan.id 
-                          ? "border-[#b9ff6a] bg-gradient-to-br from-gray-900 to-black shadow-2xl shadow-[#b9ff6a]/20" 
-                          : "border-gray-700 bg-gradient-to-br from-gray-900 to-black hover:border-gray-600 hover:shadow-xl"
+                          ? "border-[#b9ff6a] bg-black shadow-lg shadow-[#b9ff6a]/20" 
+                          : "border-[#b9ff6a]/30 bg-black hover:border-[#b9ff6a]/50"
                       }`}
                       onClick={() => registerForm.setValue("plan", plan.id as "basic" | "pro" | "enterprise")}
                     >
                       {plan.popular && (
-                        <div className="absolute -top-3 -right-3">
-                          <Badge className="bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] text-black px-3 py-1 text-xs font-bold shadow-lg">
+                        <div className="absolute -top-2 -right-2">
+                          <Badge className="bg-[#b9ff6a] text-black px-2 py-1 text-xs font-bold">
                             <Star className="w-3 h-3 mr-1 fill-current" />
                             ПОПУЛЯРНЫЙ
                           </Badge>
                         </div>
                       )}
                       
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-xl ${plan.popular ? 'bg-gradient-to-r from-[#b9ff6a] to-[#8ed653]' : 'bg-gray-800'} text-black`}>
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${plan.popular ? 'bg-[#b9ff6a]' : 'bg-[#b9ff6a]/20'} text-black`}>
                               {plan.icon}
                             </div>
                             <div>
-                              <h4 className="text-xl font-bold text-white mb-1">{plan.name}</h4>
-                              <p className="text-sm text-gray-400">{plan.description}</p>
+                              <h4 className="text-lg font-bold text-white mb-0">{plan.name}</h4>
+                              <p className="text-xs text-white/60">{plan.description}</p>
                             </div>
                           </div>
                           <div className="text-right">
