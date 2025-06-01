@@ -2,6 +2,7 @@ import {
   users,
   emails,
   emailRecipients,
+  userSessions,
   type User,
   type InsertUser,
   type InsertEmail,
@@ -9,6 +10,8 @@ import {
   type EmailWithSender,
   type EmailWithDetails,
   type EmailRecipient,
+  type UserSession,
+  type InsertUserSession,
   type RegisterData,
   type LoginData,
 } from "@shared/schema";

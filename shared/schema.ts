@@ -40,6 +40,22 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User sessions table for security tracking
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  sessionId: varchar("session_id").notNull(),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  browser: varchar("browser"),
+  os: varchar("os"),
+  country: varchar("country"),
+  city: varchar("city"),
+  isActive: boolean("is_active").default(true),
+  lastActivity: timestamp("last_activity").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Email messages table
 export const emails = pgTable("emails", {
   id: serial("id").primaryKey(),
@@ -67,6 +83,14 @@ export const emailRecipients = pgTable("email_recipients", {
 export const usersRelations = relations(users, ({ many }) => ({
   sentEmails: many(emails),
   receivedEmails: many(emailRecipients),
+  sessions: many(userSessions),
+}));
+
+export const userSessionsRelations = relations(userSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [userSessions.userId],
+    references: [users.id],
+  }),
 }));
 
 export const emailsRelations = relations(emails, ({ one, many }) => ({
@@ -133,3 +157,5 @@ export type Email = typeof emails.$inferSelect;
 export type EmailRecipient = typeof emailRecipients.$inferSelect;
 export type EmailWithSender = Email & { sender: User };
 export type EmailWithDetails = Email & { sender: User; isRead: boolean };
+export type UserSession = typeof userSessions.$inferSelect;
+export type InsertUserSession = typeof userSessions.$inferInsert;

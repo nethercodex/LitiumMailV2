@@ -185,6 +185,8 @@ export default function Security() {
                       id="newPassword"
                       type={showNewPassword ? "text" : "password"}
                       placeholder="Создайте новый пароль"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
@@ -210,6 +212,8 @@ export default function Security() {
                       id="confirmPassword"
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Повторите новый пароль"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       className="bg-gray-900/60 border border-gray-700/60 text-white placeholder:text-gray-400 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 pr-12 h-12 backdrop-blur-sm transition-all duration-200"
                     />
                     <Button
@@ -253,8 +257,12 @@ export default function Security() {
                   </ul>
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#97d548] font-semibold h-12 rounded-xl shadow-lg shadow-[#b9ff6a]/20 transition-all duration-200">
-                  Обновить пароль
+                <Button 
+                  onClick={handlePasswordChange}
+                  disabled={changePasswordMutation.isPending}
+                  className="w-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#97d548] font-semibold h-12 rounded-xl shadow-lg shadow-[#b9ff6a]/20 transition-all duration-200 disabled:opacity-50"
+                >
+                  {changePasswordMutation.isPending ? "Обновление..." : "Обновить пароль"}
                 </Button>
               </CardContent>
             </Card>
