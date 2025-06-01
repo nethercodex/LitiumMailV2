@@ -5,6 +5,7 @@ import { Mail, Settings, Users, BarChart3, Shield, ArrowLeft, Database, Activity
 import SystemInfo from "./system-info";
 import Monitoring from "./monitoring";
 import DatabaseAdmin from "./database";
+import SecuritySettings from "./security";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -384,6 +385,9 @@ export default function Admin() {
       
       case 'settings':
         return <AdminSettings />;
+      
+      case 'security':
+        return <SecuritySettings />;
       
       default:
         return (
