@@ -727,7 +727,12 @@ export default function Landing() {
                 <Button size="icon" variant="ghost" className="bg-surface-lighter hover:bg-primary/20">
                   <Twitter className="text-primary h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" className="bg-surface-lighter hover:bg-primary/20">
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  className="bg-surface-lighter hover:bg-primary/20"
+                  onClick={() => window.open('https://github.com/nethercodex/LitiumMail/tree/main', '_blank')}
+                >
                   <Github className="text-primary h-4 w-4" />
                 </Button>
               </div>

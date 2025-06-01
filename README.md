@@ -133,7 +133,7 @@ mail IN A your-server-ip
 @ IN TXT "v=spf1 mx a ~all"
 
 ; DKIM и DMARC записи (опционально)
-_dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:admin@litium.space"
+_dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:support@litium.space"
 ```
 
 ### Настройка сервера

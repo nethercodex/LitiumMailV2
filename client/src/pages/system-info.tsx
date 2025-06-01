@@ -227,15 +227,36 @@ export default function SystemInfo() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-400">Репозиторий</span>
-                <span className="text-white">GitHub</span>
+                <a 
+                  href="https://github.com/nethercodex/LitiumMail/tree/main" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  GitHub
+                </a>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Документация</span>
-                <span className="text-white">docs.litium.space</span>
+                <span className="text-gray-400">Разработчик</span>
+                <a 
+                  href="https://t.me/nethercode" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  NETHERCODE
+                </a>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Поддержка</span>
-                <span className="text-white">admin@litium.space</span>
+                <span className="text-gray-400">Телеграм</span>
+                <a 
+                  href="https://t.me/nethercode" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  @nethercode
+                </a>
               </div>
             </div>
           </div>
