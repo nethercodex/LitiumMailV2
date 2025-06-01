@@ -151,30 +151,30 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto bg-black border-gray-800 shadow-2xl">
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto bg-black border-[#b9ff6a]/20 shadow-2xl">
         <DialogHeader className="space-y-4 pb-6">
           <div className="flex items-center justify-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] rounded-lg flex items-center justify-center">
-              <Mail className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 bg-[#b9ff6a] rounded-xl flex items-center justify-center">
+              <Mail className="w-7 h-7 text-black" />
             </div>
-            <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] bg-clip-text text-transparent">
+            <DialogTitle className="text-3xl font-bold text-[#b9ff6a]">
               LITIUM.SPACE
             </DialogTitle>
           </div>
-          <p className="text-gray-400 text-center text-lg">Современная почтовая система нового поколения</p>
+          <p className="text-white/70 text-center text-lg">Современная почтовая система нового поколения</p>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-1 mb-8">
+          <TabsList className="grid w-full grid-cols-2 bg-black border border-[#b9ff6a]/30 rounded-xl p-2 mb-8">
             <TabsTrigger 
               value="login" 
-              className="rounded-lg text-gray-300 font-semibold transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b9ff6a] data-[state=active]:to-[#8ed653] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
+              className="rounded-lg text-white/70 font-semibold transition-all duration-300 data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
             >
               Вход в систему
             </TabsTrigger>
             <TabsTrigger 
               value="register" 
-              className="rounded-lg text-gray-300 font-semibold transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#b9ff6a] data-[state=active]:to-[#8ed653] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
+              className="rounded-lg text-white/70 font-semibold transition-all duration-300 data-[state=active]:bg-[#b9ff6a] data-[state=active]:text-black data-[state=active]:shadow-lg hover:text-white"
             >
               Создать аккаунт
             </TabsTrigger>
@@ -183,13 +183,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {/* Форма входа */}
           <TabsContent value="login">
             <div className="max-w-md mx-auto">
-              <Card className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 shadow-2xl backdrop-blur-sm">
+              <Card className="bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
                 <CardHeader className="text-center pb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#b9ff6a] to-[#8ed653] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-4">
                     <Lock className="w-8 h-8 text-black" />
                   </div>
                   <CardTitle className="text-2xl font-bold text-white mb-2">Вход в систему</CardTitle>
-                  <CardDescription className="text-gray-400 text-lg">
+                  <CardDescription className="text-white/60 text-lg">
                     Войдите в свой аккаунт LITIUM.SPACE
                   </CardDescription>
                 </CardHeader>
@@ -197,7 +197,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
                     <div className="space-y-3">
                       <Label htmlFor="username" className="text-white flex items-center gap-3 text-sm font-medium">
-                        <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
                           <User className="w-4 h-4 text-[#b9ff6a]" />
                         </div>
                         Имя пользователя
@@ -206,7 +206,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         id="username"
                         placeholder="Введите имя пользователя"
                         {...loginForm.register("username")}
-                        className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
                       />
                       {loginForm.formState.errors.username && (
                         <p className="text-sm text-red-400 flex items-center gap-2">
@@ -220,7 +220,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                     <div className="space-y-3">
                       <Label htmlFor="password" className="text-white flex items-center gap-3 text-sm font-medium">
-                        <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-[#b9ff6a]/10 rounded-lg flex items-center justify-center border border-[#b9ff6a]/30">
                           <Lock className="w-4 h-4 text-[#b9ff6a]" />
                         </div>
                         Пароль
@@ -230,7 +230,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         type="password"
                         placeholder="Введите пароль"
                         {...loginForm.register("password")}
-                        className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                        className="h-12 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
                       />
                       {loginForm.formState.errors.password && (
                         <p className="text-sm text-red-400 flex items-center gap-2">
@@ -244,7 +244,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 bg-gradient-to-r from-[#b9ff6a] to-[#8ed653] hover:from-[#a8e85c] hover:to-[#7dd142] text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                      className="w-full h-12 bg-[#b9ff6a] hover:bg-[#b9ff6a]/90 text-black font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? (
@@ -282,13 +282,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
               {/* Форма регистрации */}
               <div className="xl:col-span-3">
-                <Card className="bg-gradient-to-br from-gray-900 to-black border border-gray-700 shadow-2xl backdrop-blur-sm">
+                <Card className="bg-black border border-[#b9ff6a]/20 shadow-2xl shadow-[#b9ff6a]/10">
                   <CardHeader className="text-center pb-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-[#b9ff6a] to-[#8ed653] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-[#b9ff6a] rounded-full flex items-center justify-center mx-auto mb-4">
                       <User className="w-8 h-8 text-black" />
                     </div>
                     <CardTitle className="text-2xl font-bold text-white mb-2">Создать аккаунт</CardTitle>
-                    <CardDescription className="text-gray-400 text-lg">
+                    <CardDescription className="text-white/60 text-lg">
                       Присоединяйтесь к LITIUM.SPACE сегодня
                     </CardDescription>
                   </CardHeader>
