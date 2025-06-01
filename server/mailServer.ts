@@ -177,25 +177,60 @@ export class LitiumMailServer {
     });
   }
 
-  // Отправка писем через собственный SMTP
+  // Отправка писем через внешний SMTP (для отправки на внешние адреса)
   public async sendEmail(from: string, to: string, subject: string, body: string): Promise<void> {
     try {
-      // Создаем транспорт для отправки через наш собственный SMTP
-      const transporter = nodemailer.createTransporter({
-        host: 'localhost',
-        port: 25,
-        secure: false,
-        auth: false, // Локальная отправка без аутентификации
-      });
+      // Для внешних адресов используем внешний SMTP
+      const domain = to.split('@')[1];
+      
+      if (domain === 'litium.space') {
+        // Для внутренних адресов сохраняем в базу данных напрямую
+        console.log(`Internal email from ${from} to ${to}: ${subject}`);
+        
+        // Найти пользователя-получателя и сохранить письмо в базу
+        const { storage } = await import('./storage');
+        const recipientUsername = to.split('@')[0];
+        const recipient = await storage.getUserByUsername(recipientUsername);
+        
+        if (recipient) {
+          // Сохраняем письмо как внутреннее
+          await storage.sendEmail('support', {
+            toEmail: to,
+            subject: subject,
+            body: body
+          });
+        }
+      } else {
+        // Для внешних адресов используем настройки SMTP из админ панели
+        const { storage } = await import('./storage');
+        const smtpSettings = await storage.getMailServerSettings();
+        
+        if (smtpSettings && smtpSettings.isActive) {
+          // Создаем транспорт с настройками из админ панели
+          const transporter = nodemailer.createTransporter({
+            host: smtpSettings.smtpHost,
+            port: smtpSettings.smtpPort,
+            secure: smtpSettings.smtpSecure,
+            auth: {
+              user: smtpSettings.smtpUser,
+              pass: smtpSettings.smtpPassword,
+            },
+          });
 
-      await transporter.sendMail({
-        from,
-        to,
-        subject,
-        html: body,
-      });
+          await transporter.sendMail({
+            from,
+            to,
+            subject,
+            html: body,
+          });
 
-      console.log(`Email sent: ${subject} from ${from} to ${to}`);
+          console.log(`External email sent: ${from} -> ${to}`);
+        } else {
+          console.log(`External email delivery failed: No SMTP settings configured`);
+          console.log(`Configure SMTP settings in admin panel to enable external email delivery`);
+          throw new Error('SMTP settings not configured for external email delivery');
+        }
+      }
     } catch (error) {
       console.error('Email sending error:', error);
       throw error;
