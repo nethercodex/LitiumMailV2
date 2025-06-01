@@ -9,6 +9,7 @@ import fs from "fs";
 import express from "express";
 import { storage } from "./storage";
 import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
+import { APP_VERSION } from "@shared/version";
 import { mailServer } from "./mailServer";
 import { db } from "./db";
 import { users } from "@shared/schema";
@@ -1101,7 +1102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const configData = {
-        version: "1.2.0",
+        version: APP_VERSION,
         exportDate: new Date().toISOString(),
         settings: {
           general: {
@@ -1804,7 +1805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const currentVersion = "1.2.0";
+      const currentVersion = APP_VERSION;
       
       // Проверяем последний релиз на GitHub
       const githubResponse = await fetch('https://api.github.com/repos/nethercodex/LitiumMail/releases/latest');
