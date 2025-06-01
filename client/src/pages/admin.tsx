@@ -50,7 +50,7 @@ export default function Admin() {
     );
   }
 
-  if (!user || user.id !== 'admin') return null;
+  if (!user || user.id !== 'support') return null;
 
   return (
     <div className="min-h-screen bg-dark text-white">
