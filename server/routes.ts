@@ -154,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // API роут для загрузки аватара
-  app.post("/api/users/avatar", requireAuth, upload.single('avatar'), async (req, res) => {
+  app.post("/api/users/avatar", requireAuth, upload.single('avatar'), async (req: any, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "Файл не загружен" });

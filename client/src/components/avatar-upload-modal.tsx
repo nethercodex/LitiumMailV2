@@ -200,7 +200,7 @@ export default function AvatarUploadModal({
             </div>
           </div>
 
-          {/* Загрузка файла */}
+          {/* Область перетаскивания файлов */}
           <div className="space-y-4">
             <input
               ref={fileInputRef}
@@ -210,15 +210,45 @@ export default function AvatarUploadModal({
               className="hidden"
             />
             
-            <Button
-              variant="outline"
-              className="w-full border-[#b9ff6a]/30 text-white hover:bg-[#b9ff6a]/10 hover:border-[#b9ff6a]/50"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadMutation.isPending}
+            <div
+              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer
+                ${isDragOver 
+                  ? 'border-[#b9ff6a] bg-[#b9ff6a]/5 scale-105' 
+                  : 'border-[#b9ff6a]/30 hover:border-[#b9ff6a]/50 hover:bg-[#b9ff6a]/5'
+                }
+                ${uploadMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => !uploadMutation.isPending && fileInputRef.current?.click()}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Выбрать файл
-            </Button>
+              <div className="space-y-4">
+                <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300
+                  ${isDragOver ? 'bg-[#b9ff6a]/20' : 'bg-[#b9ff6a]/10'}
+                `}>
+                  {isDragOver ? (
+                    <FileImage className="h-8 w-8 text-[#b9ff6a]" />
+                  ) : (
+                    <ImageIcon className="h-8 w-8 text-[#b9ff6a]" />
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <p className={`text-lg font-medium transition-colors duration-300
+                    ${isDragOver ? 'text-[#b9ff6a]' : 'text-white'}
+                  `}>
+                    {isDragOver ? 'Отпустите файл здесь' : 'Перетащите изображение сюда'}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    или нажмите для выбора файла
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    PNG, JPG, GIF до 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="text-sm text-gray-400 text-center">
               Поддерживаются форматы: PNG, JPG, GIF<br />
