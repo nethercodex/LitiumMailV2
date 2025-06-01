@@ -479,27 +479,27 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className={`text-2xl font-bold ${plan.popular ? 'text-[#b9ff6a]' : 'text-white'}`}>
+                            <p className={`text-lg font-bold ${plan.popular ? 'text-[#b9ff6a]' : 'text-white'}`}>
                               {plan.price}
                             </p>
                           </div>
                         </div>
                         
-                        <div className="space-y-3">
+                        <div className="space-y-1">
                           {plan.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-3 text-sm">
-                              <div className="w-5 h-5 bg-[#b9ff6a] rounded-full flex items-center justify-center flex-shrink-0">
-                                <CheckCircle className="w-3 h-3 text-black" />
+                            <div key={idx} className="flex items-center gap-2 text-xs">
+                              <div className="w-3 h-3 bg-[#b9ff6a] rounded-full flex items-center justify-center flex-shrink-0">
+                                <CheckCircle className="w-2 h-2 text-black" />
                               </div>
-                              <span className="text-gray-300">{feature}</span>
+                              <span className="text-white/80">{feature}</span>
                             </div>
                           ))}
                         </div>
                         
                         {registerForm.watch("plan") === plan.id && (
-                          <div className="mt-4 p-3 bg-[#b9ff6a]/10 border border-[#b9ff6a]/30 rounded-lg">
-                            <div className="flex items-center gap-2 text-[#b9ff6a] text-sm font-semibold">
-                              <CheckCircle className="w-4 h-4" />
+                          <div className="mt-2 p-2 bg-[#b9ff6a]/10 border border-[#b9ff6a]/30 rounded-lg">
+                            <div className="flex items-center gap-2 text-[#b9ff6a] text-xs font-semibold">
+                              <CheckCircle className="w-3 h-3" />
                               Выбранный план
                             </div>
                           </div>
@@ -508,12 +508,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </Card>
                   ))}
                 </div>
-                
-                <div className="text-center p-4 bg-gray-900/50 rounded-lg border border-gray-700">
-                  <p className="text-gray-400 text-sm">
-                    💡 Все планы включают 30-дневную гарантию возврата средств
-                  </p>
-                </div>
+
               </div>
             </div>
           </TabsContent>
