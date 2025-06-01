@@ -312,13 +312,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             </p>
                           )}
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <Label htmlFor="lastName" className="text-white text-sm font-medium">Фамилия</Label>
                           <Input
                             id="lastName"
                             placeholder="Иванов"
                             {...registerForm.register("lastName")}
-                            className="h-12 bg-gray-800/50 border border-gray-600 text-white placeholder:text-gray-500 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-xl transition-all duration-300"
+                            className="h-9 bg-black/50 border border-[#b9ff6a]/30 text-white placeholder:text-white/50 focus:border-[#b9ff6a] focus:ring-2 focus:ring-[#b9ff6a]/20 rounded-lg transition-all duration-300"
                           />
                           {registerForm.formState.errors.lastName && (
                             <p className="text-sm text-red-400 flex items-center gap-2">
