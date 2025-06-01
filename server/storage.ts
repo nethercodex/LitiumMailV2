@@ -85,7 +85,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Email operations
-  async sendEmail(fromUserId: number, emailData: InsertEmail): Promise<Email> {
+  async sendEmail(fromUserId: string, emailData: InsertEmail): Promise<Email> {
     const [email] = await db
       .insert(emails)
       .values({
@@ -110,7 +110,7 @@ export class DatabaseStorage implements IStorage {
     return email;
   }
 
-  async getInboxEmails(userId: number): Promise<EmailWithDetails[]> {
+  async getInboxEmails(userId: string): Promise<EmailWithDetails[]> {
     const result = await db
       .select({
         id: emails.id,
@@ -145,7 +145,7 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async getSentEmails(userId: number): Promise<EmailWithSender[]> {
+  async getSentEmails(userId: string): Promise<EmailWithSender[]> {
     const result = await db
       .select({
         id: emails.id,
@@ -175,7 +175,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async getEmailById(emailId: number, userId: number): Promise<EmailWithSender | undefined> {
+  async getEmailById(emailId: number, userId: string): Promise<EmailWithSender | undefined> {
     const [result] = await db
       .select({
         id: emails.id,
@@ -213,7 +213,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async markEmailAsRead(emailId: number, userId: number): Promise<void> {
+  async markEmailAsRead(emailId: number, userId: string): Promise<void> {
     await db
       .update(emailRecipients)
       .set({ isRead: true })
