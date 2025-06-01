@@ -62,10 +62,20 @@ export default function SystemInfo() {
   };
 
   const formatUptime = (seconds: number) => {
+    if (seconds < 60) {
+      return `${Math.max(0, Math.floor(seconds))}с`;
+    }
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
-    return `${days}д ${hours}ч ${mins}м`;
+    
+    if (days > 0) {
+      return `${days}д ${hours}ч ${mins}м`;
+    } else if (hours > 0) {
+      return `${hours}ч ${mins}м`;
+    } else {
+      return `${mins}м`;
+    }
   };
 
   const getStatusIcon = (status: string) => {
