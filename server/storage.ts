@@ -3,6 +3,7 @@ import {
   emails,
   emailRecipients,
   userSessions,
+  mailServerSettings,
   type User,
   type InsertUser,
   type InsertEmail,
@@ -14,6 +15,8 @@ import {
   type InsertUserSession,
   type RegisterData,
   type LoginData,
+  type MailServerSettings,
+  type InsertMailServerSettings,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";

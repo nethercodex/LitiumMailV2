@@ -333,6 +333,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mail server settings endpoints
+  app.get("/api/admin/mail-settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const settings = await storage.getMailServerSettings();
+      if (!settings) {
+        return res.json({
+          smtpHost: "",
+          smtpPort: 587,
+          smtpSecure: true,
+          smtpUser: "",
+          smtpPassword: "",
+          imapHost: "",
+          imapPort: 993,
+          imapSecure: true,
+          domain: "litium.space",
+          isActive: false
+        });
+      }
+
+      // Не возвращаем пароль в ответе
+      const { smtpPassword, ...safeSettings } = settings;
+      res.json({ ...safeSettings, smtpPassword: "••••••••" });
+    } catch (error) {
+      console.error("Error fetching mail settings:", error);
+      res.status(500).json({ message: "Failed to fetch mail settings" });
+    }
+  });
+
+  app.post("/api/admin/mail-settings", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      if (userId !== 'support') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const {
+        smtpHost,
+        smtpPort,
+        smtpSecure,
+        smtpUser,
+        smtpPassword,
+        imapHost,
+        imapPort,
+        imapSecure,
+        domain
+      } = req.body;
+
+      if (!smtpHost || !smtpUser || !smtpPassword || !imapHost || !domain) {
+        return res.status(400).json({ message: "Заполните все обязательные поля" });
+      }
+
+      const settings = await storage.updateMailServerSettings({
+        smtpHost,
+        smtpPort: Number(smtpPort) || 587,
+        smtpSecure: Boolean(smtpSecure),
+        smtpUser,
+        smtpPassword,
+        imapHost,
+        imapPort: Number(imapPort) || 993,
+        imapSecure: Boolean(imapSecure),
+        domain,
+      });
+
+      // Не возвращаем пароль в ответе
+      const { smtpPassword: _, ...safeSettings } = settings;
+      res.json({ ...safeSettings, smtpPassword: "••••••••" });
+    } catch (error) {
+      console.error("Error updating mail settings:", error);
+      res.status(500).json({ message: "Failed to update mail settings" });
+    }
+  });
+
   // Email routes
   app.post("/api/emails/send", requireAuth, async (req: any, res) => {
     try {
