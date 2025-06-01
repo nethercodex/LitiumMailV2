@@ -85,8 +85,12 @@ export default function Admin() {
                   <Users className="h-4 w-4 text-[#b9ff6a]" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">1,234</div>
-                  <p className="text-xs text-gray-400">+20.1% за месяц</p>
+                  <div className="text-2xl font-bold text-white">
+                    {statsLoading ? "..." : stats?.totalUsers || 0}
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    {statsLoading ? "..." : `+${stats?.userGrowth || 0}% за месяц`}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -96,8 +100,12 @@ export default function Admin() {
                   <Mail className="h-4 w-4 text-[#b9ff6a]" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">12,234</div>
-                  <p className="text-xs text-gray-400">+180.1% за месяц</p>
+                  <div className="text-2xl font-bold text-white">
+                    {statsLoading ? "..." : stats?.totalEmails || 0}
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    {statsLoading ? "..." : `+${stats?.emailGrowth || 0}% за месяц`}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -107,8 +115,10 @@ export default function Admin() {
                   <BarChart3 className="h-4 w-4 text-[#b9ff6a]" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">98.5%</div>
-                  <p className="text-xs text-gray-400">+2.5% за неделю</p>
+                  <div className="text-2xl font-bold text-white">
+                    {statsLoading ? "..." : `${stats?.systemUptime || 0}%`}
+                  </div>
+                  <p className="text-xs text-gray-400">Время работы</p>
                 </CardContent>
               </Card>
 
@@ -118,7 +128,9 @@ export default function Admin() {
                   <Server className="h-4 w-4 text-[#b9ff6a]" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-white">4/4</div>
+                  <div className="text-2xl font-bold text-white">
+                    {statsLoading ? "..." : stats?.serversOnline || "0/0"}
+                  </div>
                   <p className="text-xs text-gray-400">Все работают</p>
                 </CardContent>
               </Card>
