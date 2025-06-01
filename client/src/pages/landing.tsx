@@ -462,20 +462,21 @@ export default function Landing() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
             {/* Basic Plan */}
             <Card className="bg-surface border-surface-lighter card-hover glow-subtle group relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gray-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Mail className="text-gray-400 h-8 w-8" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-gray-500/10 to-gray-500/5 rounded-2xl flex items-center justify-center mx-auto mb-4 btn-hover-scale shadow-lg">
+                    <Mail className="text-gray-400 h-10 w-10" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Базовый</h3>
-                  <div className="text-3xl font-bold mb-2">
+                  <h3 className="text-2xl font-bold mb-3">Базовый</h3>
+                  <div className="text-4xl font-bold mb-3 bg-gradient-to-r from-gray-400 to-gray-300 bg-clip-text text-transparent">
                     Бесплатно
                   </div>
-                  <p className="text-text-muted">Для личного использования</p>
+                  <p className="text-text-muted text-lg">Для личного использования</p>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
@@ -516,25 +517,30 @@ export default function Landing() {
             </Card>
             
             {/* Pro Plan */}
-            <Card className="bg-surface border-2 border-primary relative card-hover glow-primary group overflow-hidden">
+            <Card className="bg-surface border-2 border-primary relative card-hover glow-primary group overflow-hidden mt-4">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-primary text-dark px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+                <span className="bg-primary text-dark px-6 py-2 rounded-full text-xs font-bold shadow-lg whitespace-nowrap">
                   🔥 Популярный
                 </span>
               </div>
               
-              <CardContent className="p-8 relative z-10">
+              <CardContent className="p-8 relative z-10 pt-12">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center mx-auto mb-4 pulse-glow">
-                    <Zap className="text-primary h-8 w-8" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary/30 to-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 pulse-glow shadow-xl shadow-primary/30">
+                    <Zap className="text-primary h-10 w-10" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Профессиональный</h3>
-                  <div className="text-3xl font-bold mb-2">
-                    <span className="text-primary">499₽</span>
-                    <span className="text-base font-normal text-text-muted">/мес</span>
+                  <h3 className="text-2xl font-bold mb-3">Профессиональный</h3>
+                  <div className="text-4xl font-bold mb-3">
+                    <span className="bg-gradient-to-r from-primary to-green-400 bg-clip-text text-transparent">499₽</span>
+                    <span className="text-lg font-normal text-text-muted">/мес</span>
                   </div>
-                  <p className="text-text-muted">Для бизнеса и команд</p>
+                  <p className="text-text-muted text-lg">Для бизнеса и команд</p>
+                  <div className="mt-4 flex items-center justify-center space-x-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <span className="text-xs text-primary font-medium">Экономия 960₽ в год</span>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                  </div>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
@@ -571,9 +577,10 @@ export default function Landing() {
                 </ul>
                 
                 <Button 
-                  className="w-full bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary"
+                  className="w-full bg-primary text-dark font-semibold hover:bg-primary/80 btn-hover-lift glow-primary shadow-xl shadow-primary/25"
                   onClick={handleSignup}
                 >
+                  <Zap className="mr-2 h-5 w-5" />
                   Выбрать план
                 </Button>
               </CardContent>
@@ -584,15 +591,20 @@ export default function Landing() {
               <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <CardContent className="p-8 relative z-10">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-violet-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Server className="text-violet-400 h-8 w-8" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-violet-500/20 to-violet-500/5 rounded-2xl flex items-center justify-center mx-auto mb-4 btn-hover-scale shadow-lg">
+                    <Server className="text-violet-400 h-10 w-10" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Корпоративный</h3>
-                  <div className="text-3xl font-bold mb-2">
-                    <span className="text-violet-400">1499₽</span>
-                    <span className="text-base font-normal text-text-muted">/мес</span>
+                  <h3 className="text-2xl font-bold mb-3">Корпоративный</h3>
+                  <div className="text-4xl font-bold mb-3">
+                    <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">1499₽</span>
+                    <span className="text-lg font-normal text-text-muted">/мес</span>
                   </div>
-                  <p className="text-text-muted">Для больших команд</p>
+                  <p className="text-text-muted text-lg">Для больших команд</p>
+                  <div className="mt-4 flex items-center justify-center">
+                    <span className="text-xs text-violet-400 font-medium bg-violet-400/10 px-3 py-1 rounded-full">
+                      Индивидуальные условия
+                    </span>
+                  </div>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
