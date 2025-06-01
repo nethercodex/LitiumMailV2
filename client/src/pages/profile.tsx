@@ -10,13 +10,15 @@ import { CalendarDays, Mail, User, Package, CheckCircle, XCircle, Settings, Edit
 import { format, isValid } from "date-fns";
 import { ru } from "date-fns/locale";
 import { getPlanDisplayName } from "@shared/plans";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import AvatarUploadModal from "@/components/avatar-upload-modal";
 
 export default function Profile() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -109,6 +111,7 @@ export default function Profile() {
               <Button
                 size="sm"
                 className="absolute -bottom-2 -right-2 rounded-full bg-gradient-to-r from-[#b9ff6a] to-[#a8e659] text-black hover:from-[#a8e659] hover:to-[#96d147] w-12 h-12 p-0 shadow-lg transition-all duration-200 hover:scale-105"
+                onClick={() => setIsAvatarModalOpen(true)}
               >
                 <Edit className="h-5 w-5" />
               </Button>
@@ -342,6 +345,14 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Avatar Upload Modal */}
+      <AvatarUploadModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        currentAvatarUrl={profileData?.profileImageUrl}
+        userInitials={userInitials}
+      />
     </div>
   );
 }

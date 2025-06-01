@@ -3,8 +3,14 @@ import { createServer, type Server } from "http";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { registerSchema, loginSchema, insertEmailSchema } from "@shared/schema";
+import { db } from "./db";
+import { users } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 // Настройка постоянных сессий с базой данных
 const sessionTtl = 30 * 24 * 60 * 60 * 1000; // 30 дней в миллисекундах
