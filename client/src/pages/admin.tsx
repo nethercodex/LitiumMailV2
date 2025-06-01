@@ -714,11 +714,7 @@ function MailServerSettings() {
   // Мутации для управления серверами
   const startServerMutation = useMutation({
     mutationFn: async (port: number = 2525) => {
-      return apiRequest('/api/admin/mail-server/start', {
-        method: 'POST',
-        body: JSON.stringify({ port }),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return apiRequest('POST', '/api/admin/mail-server/start', { port });
     },
     onSuccess: () => {
       toast({
@@ -738,11 +734,7 @@ function MailServerSettings() {
 
   const stopServerMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('/api/admin/mail-server/stop', {
-        method: 'POST',
-        body: JSON.stringify({}),
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return apiRequest('POST', '/api/admin/mail-server/stop', {});
     },
     onSuccess: () => {
       toast({
