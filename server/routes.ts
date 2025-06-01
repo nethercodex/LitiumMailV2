@@ -10,16 +10,23 @@ const userSessions = new Map<string, any>();
 // Middleware для проверки аутентификации
 const requireAuth = async (req: any, res: any, next: any) => {
   try {
+    console.log("Auth middleware - method:", req.method, "path:", req.path);
+    console.log("Auth middleware - cookies:", req.cookies);
     const sessionId = req.cookies?.sessionId;
+    console.log("Auth middleware - sessionId:", sessionId);
     const session = userSessions.get(sessionId);
+    console.log("Auth middleware - session found:", !!session);
     
     if (!session) {
+      console.log("Auth middleware - no session, returning 401");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     req.user = session.user;
+    console.log("Auth middleware - user authenticated:", req.user?.id);
     next();
   } catch (error) {
+    console.log("Auth middleware - error:", error);
     res.status(401).json({ message: "Unauthorized" });
   }
 };
