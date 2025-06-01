@@ -34,6 +34,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name", { length: 255 }),
   profileImageUrl: varchar("profile_image_url"),
   plan: varchar("plan", { length: 50 }).default("basic").notNull(), // basic, pro, enterprise
+  role: varchar("role", { length: 20 }).default("user").notNull(), // user, admin, support
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

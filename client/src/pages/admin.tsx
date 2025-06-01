@@ -24,7 +24,7 @@ export default function Admin() {
       return;
     }
 
-    if (!isLoading && user && user.id !== 'admin') {
+    if (!isLoading && user && user.id !== 'admin' && user.id !== 'support') {
       toast({
         title: "Доступ запрещен",
         description: "У вас нет прав доступа к админ-панели.",
