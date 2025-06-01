@@ -644,6 +644,12 @@ function MailServerSettings() {
     queryKey: ['/api/admin/mail-settings'],
   });
 
+  // Загрузка статуса собственного почтового сервера
+  const { data: serverStatus, isLoading: statusLoading } = useQuery({
+    queryKey: ['/api/admin/mail-server/status'],
+    refetchInterval: 5000, // Обновляем каждые 5 секунд
+  });
+
   // Обновляем форму при загрузке настроек
   useEffect(() => {
     if (settings) {
@@ -705,31 +711,7 @@ function MailServerSettings() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-2">Настройки почтового сервера</h2>
-          <p className="text-gray-400">Настройка SMTP и IMAP серверов для системы LITIUM.SPACE</p>
-        </div>
-        <Card className="bg-black/40 border-gray-800">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center py-8">
-              <div className="w-8 h-8 border-2 border-[#b9ff6a] border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Загрузка статуса собственного почтового сервера
-  const { data: serverStatus, isLoading: statusLoading } = useQuery({
-    queryKey: ['/api/admin/mail-server/status'],
-    refetchInterval: 5000, // Обновляем каждые 5 секунд
-  });
-
-  // Запуск собственного почтового сервера
+  // Мутации для управления серверами
   const startServerMutation = useMutation({
     mutationFn: async (port: number = 2525) => {
       return apiRequest('/api/admin/mail-server/start', {
@@ -754,7 +736,6 @@ function MailServerSettings() {
     },
   });
 
-  // Остановка собственного почтового сервера
   const stopServerMutation = useMutation({
     mutationFn: async () => {
       return apiRequest('/api/admin/mail-server/stop', {
